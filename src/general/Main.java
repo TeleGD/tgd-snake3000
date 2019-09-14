@@ -35,9 +35,7 @@ public class Main extends StateBasedGame{
 		addState(new WelcomeMenu());
 		addState(new MainMenu());
 		addState(new snake.World());
-        addState(new snake2.snake.World());
-		addState(new towerDefense.World());
-		addState(new towerDefense.TowerEnd());
+		addState(new snake2.World());
 
 		this.enterState(WelcomeMenu.ID);
 	}

@@ -1,4 +1,4 @@
-package snake2.snake;
+package snake2;
 
 import general.ui.Button;
 import general.ui.TGDComponent;
@@ -9,8 +9,8 @@ import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 import org.newdawn.slick.state.transition.FadeInTransition;
 import org.newdawn.slick.state.transition.FadeOutTransition;
-import snake2.snake.network_tcp.Client;
-import snake2.snake.network_tcp.Serveur;
+import snake2.network_tcp.Client;
+import snake2.network_tcp.Serveur;
 
 import java.net.InetAddress;
 import java.net.Socket;

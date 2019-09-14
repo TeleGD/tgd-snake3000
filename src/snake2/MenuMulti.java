@@ -1,4 +1,4 @@
-package snake2.snake;
+package snake2;
 
 import general.ui.Button;
 import general.ui.ColorPicker;

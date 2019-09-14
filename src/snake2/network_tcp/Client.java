@@ -1,4 +1,4 @@
-package snake2.snake.network_tcp;
+package snake2.network_tcp;
 
 import java.io.*;
 import java.net.Socket;

@@ -1,4 +1,4 @@
-package snake2.snake;
+package snake2;
 
 import general.ui.Button;
 import general.ui.ColorPicker;
@@ -7,10 +7,10 @@ import general.ui.TGDComponent.OnClickListener;
 import general.ui.TextField;
 import org.newdawn.slick.*;
 import org.newdawn.slick.state.StateBasedGame;
-import snake2.snake.network_tcp.Client;
-import snake2.snake.network_tcp.DiscoverServerThread;
-import snake2.snake.network_tcp.DiscoveryThread;
-import snake2.snake.network_tcp.Serveur;
+import snake2.network_tcp.Client;
+import snake2.network_tcp.DiscoverServerThread;
+import snake2.network_tcp.DiscoveryThread;
+import snake2.network_tcp.Serveur;
 
 import java.net.InetAddress;
 import java.net.Socket;

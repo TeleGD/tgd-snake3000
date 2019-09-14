@@ -1,4 +1,4 @@
-package snake2.snake;
+package snake2;
 
 
 import org.newdawn.slick.*;
