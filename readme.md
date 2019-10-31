@@ -2,6 +2,8 @@
 
 *Coding Night* du 21/10/2017
 
+![](screenshot.png)
+
 ## Avertissement liminaire
 
 Ce dépôt n'est plus maintenu et subsiste uniquement en tant qu'archive.
