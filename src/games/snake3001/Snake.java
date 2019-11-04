@@ -1,4 +1,4 @@
-package snake2;
+package games.snake3001;
 
 
 import org.newdawn.slick.*;
@@ -125,18 +125,18 @@ public class Snake {
 
 
 	public void keyPressed(int key, char c) {
-        if ((key == TDroite && !inverse) || (key == TGauche && inverse)) {
-            rightPress = true;
-            dir += 1;
-            dir = dir % 4;
-        }
-        if ((key == TDroite && inverse) || (key == TGauche && !inverse)) {
-            leftPress = true;
-            dir -= 1;
-            dir += 4;
-            dir = dir % 4;
+		if ((key == TDroite && !inverse) || (key == TGauche && inverse)) {
+			rightPress = true;
+			dir += 1;
+			dir = dir % 4;
+		}
+		if ((key == TDroite && inverse) || (key == TGauche && !inverse)) {
+			leftPress = true;
+			dir -= 1;
+			dir += 4;
+			dir = dir % 4;
 
-        }
+		}
 	}
 
 	public void grandir(){
@@ -191,7 +191,7 @@ public class Snake {
 
 
 	public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
-		for  (int i = 0 ; i<body.size(); i++) {
+		for (int i = 0 ; i<body.size(); i++) {
 			g.setColor(couleur);
 			g.fillRect(body.get(i).x*horizontal,body.get(i).y*vertical,horizontal,vertical);
 		}

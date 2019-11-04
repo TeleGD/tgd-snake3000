@@ -1,4 +1,4 @@
-package snake;
+package games.snake3000;
 
 
 import java.util.ArrayList;
@@ -9,8 +9,6 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
-
-import snake.Point;
 
 
 public class Snake {
@@ -136,18 +134,18 @@ public class Snake {
 
 
 	public void keyPressed(int key, char c) {
-        if ((key == TDroite && !inverse) || (key == TGauche && inverse)) {
-            rightPress = true;
-            dir += 1;
-            dir = dir % 4;
-        }
-        if ((key == TDroite && inverse) || (key == TGauche && !inverse)) {
-            leftPress = true;
-            dir -= 1;
-            dir += 4;
-            dir = dir % 4;
+		if ((key == TDroite && !inverse) || (key == TGauche && inverse)) {
+			rightPress = true;
+			dir += 1;
+			dir = dir % 4;
+		}
+		if ((key == TDroite && inverse) || (key == TGauche && !inverse)) {
+			leftPress = true;
+			dir -= 1;
+			dir += 4;
+			dir = dir % 4;
 
-        }
+		}
 	}
 
 	public void grandir(){
@@ -202,7 +200,7 @@ public class Snake {
 
 
 	public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
-		for  (int i = 0 ; i<body.size(); i++) {
+		for (int i = 0 ; i<body.size(); i++) {
 			g.setColor(couleur);
 			g.fillRect(body.get(i).x*horizontal,body.get(i).y*vertical,horizontal,vertical);
 		}

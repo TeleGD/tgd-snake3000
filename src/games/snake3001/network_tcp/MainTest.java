@@ -1,4 +1,4 @@
-package snake2.network_tcp;
+package games.snake3001.network_tcp;
 
 import java.net.Socket;
 
@@ -54,7 +54,7 @@ public class MainTest implements Client.SocketListener {
 			@Override
 			public void onServerDetected(String ipAdress) {
 				//L'adresse du serveur a été trouvé
-			    client = new Client(ipAdress,8888);
+				client = new Client(ipAdress,8888);
 				client.addSocketListener(MainTest.this);
 				client.sendString("salut");
 

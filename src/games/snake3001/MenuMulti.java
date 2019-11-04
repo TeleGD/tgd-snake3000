@@ -1,4 +1,4 @@
-package snake2;
+package games.snake3001;
 
 import general.ui.Button;
 import general.ui.ColorPicker;
@@ -28,8 +28,8 @@ public class MenuMulti {
 	private Button boutonStart;
 	private Snake[] joueurs;
 	public boolean enleve=false;
-	private int[] touchesDefaut = {Input.KEY_RIGHT,Input.KEY_LEFT, Input.KEY_Z, Input.KEY_A, Input.KEY_P, Input.KEY_O, Input.KEY_X, Input.KEY_W, Input.KEY_N, Input.KEY_B, Input.KEY_NUMPAD2,Input.KEY_NUMPAD1,Input.KEY_NUMPAD9,Input.KEY_NUMPAD8,Input.KEY_U,Input.KEY_Y,Input.KEY_G,Input.KEY_F};
-	private String[] valTouchesDefaut = {"->","<-","Z","A","P","O","X","W","N","B","2","1","9","8","U","Y","G","F"};
+	private int[] touchesDefaut ={Input.KEY_LEFT,Input.KEY_RIGHT, Input.KEY_A, Input.KEY_Z, Input.KEY_O, Input.KEY_P, Input.KEY_W, Input.KEY_X, Input.KEY_B, Input.KEY_N, Input.KEY_NUMPAD1,Input.KEY_NUMPAD2,Input.KEY_NUMPAD8,Input.KEY_NUMPAD9,Input.KEY_Y,Input.KEY_U,Input.KEY_F,Input.KEY_G};
+	private String[] valTouchesDefaut = {"<-","->","A","Z","O","P","W","X","B","N","1","2","8","9","Y","U","F","G"};
 	private Color[] couleursDefaut =new Color[] {Color.white, Color.blue,Color.red,Color.green,Color.pink,Color.yellow,Color.cyan,Color.orange,Color.magenta};
 	private Color[] couleursJoueurs = couleursDefaut;
 	private Button[] choixCouleur;

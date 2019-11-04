@@ -1,25 +1,18 @@
 package menus;
 
-import java.awt.Font;
-
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
-import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.state.StateBasedGame;
 import org.newdawn.slick.state.transition.FadeInTransition;
 import org.newdawn.slick.state.transition.FadeOutTransition;
 
-import general.ui.Button;
 import general.ui.TGDComponent;
 import general.ui.TGDComponent.OnClickListener;
-import general.ui.TextField;
-import general.utils.FontUtils;
 import general.Main;
-
 
 public class WelcomeMenu extends Menu implements OnClickListener{
 

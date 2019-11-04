@@ -1,4 +1,4 @@
-package snake;
+package games.snake3001;
 
 public class Point {
 	public int x;

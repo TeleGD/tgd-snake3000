@@ -1,4 +1,4 @@
-package snake2.network_tcp;
+package games.snake3001.network_tcp;
 
 import java.io.IOException;
 import java.net.*;
@@ -19,51 +19,51 @@ public class DiscoverServerThread extends Thread implements Runnable{
 
 	@Override
 	public void run(){
-        DatagramSocket socket;
+		DatagramSocket socket;
 		try {
 			DatagramPacket sendPacket,receivePacket;
 			byte[] recvBuf;
 			for(int i=0;i<nbRetry;i++){
 
 
-		        //ON BROADCASTE A TOUS LE MONDE SUR LE PORT "PORT", LE MESSAGE "MESSAGE_TO_DETECT"
-		        byte[] sendData = MESSAGE_TO_DETECT.getBytes();
-		        sendPacket = new DatagramPacket(sendData, sendData.length, InetAddress.getByName("255.255.255.255"), PORT);
+				//ON BROADCASTE A TOUS LE MONDE SUR LE PORT "PORT", LE MESSAGE "MESSAGE_TO_DETECT"
+				byte[] sendData = MESSAGE_TO_DETECT.getBytes();
+				sendPacket = new DatagramPacket(sendData, sendData.length, InetAddress.getByName("255.255.255.255"), PORT);
 
 				socket = new DatagramSocket();
-		        socket.setBroadcast(true);
-		        socket.setSoTimeout(10000);
-		        socket.send(sendPacket);
-		        socket.close();
+				socket.setBroadcast(true);
+				socket.setSoTimeout(10000);
+				socket.send(sendPacket);
+				socket.close();
 
 				System.out.println("MESSAGE BROADCASTE PAR LE SERVEUR A TOUT LE MONDE:"+MESSAGE_TO_DETECT);
 
 				long time=System.currentTimeMillis();
 
 				while((System.currentTimeMillis()-time)<timeout){
-			        try{
-			        	//ON ATTEND LES REPONSES DES GENS QUI RECHERCHE CE SERVEUR
+					try{
+						//ON ATTEND LES REPONSES DES GENS QUI RECHERCHE CE SERVEUR
 						System.out.println("EN ATTENTE D'UN RETOUR CLIENT");
 
-				        recvBuf = new byte[15000];
-				        receivePacket = new DatagramPacket(recvBuf, recvBuf.length);
+						recvBuf = new byte[15000];
+						receivePacket = new DatagramPacket(recvBuf, recvBuf.length);
 
 						socket = new DatagramSocket(PORT, InetAddress.getByName("0.0.0.0"));
-				        socket.setSoTimeout(timeout/2);
-				        socket.receive(receivePacket);
-				        socket.close();
+						socket.setSoTimeout(timeout/2);
+						socket.receive(receivePacket);
+						socket.close();
 
-				        //MESSAGE RECU, ANALYSONS
+						//MESSAGE RECU, ANALYSONS
 						String received = new String(receivePacket.getData(), 0,receivePacket.getLength());
 						System.out.println("MESSAGE EN REPONSE DU BROADCAST : "+received);
 
 						if(received.equals(MESSAGE_DETECTED)){
 							//YEEESS NOUVEAU CLIENT.
-				        }
+						}
 
-			        }catch (SocketTimeoutException e) {
-			        	socket.close();
-		            }
+					}catch (SocketTimeoutException e) {
+						socket.close();
+					}
 				}
 			}
 

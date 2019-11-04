@@ -1,4 +1,4 @@
-package snake2.network_tcp;
+package games.snake3001.network_tcp;
 
 import java.io.IOException;
 import java.net.*;

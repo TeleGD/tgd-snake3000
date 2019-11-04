@@ -1,14 +1,12 @@
-package snake;
-
-import java.util.Random;
+package games.snake3001;
 
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
-import org.newdawn.slick.Music;
 import org.newdawn.slick.SlickException;
-import org.newdawn.slick.Sound;
 import org.newdawn.slick.state.StateBasedGame;
+
+import java.util.Random;
 
 public class Bonus {
 
@@ -52,19 +50,19 @@ public class Bonus {
 		return new Bonus(pt,bonus,r.nextInt(2)+1);
 	}
 
-	public void CreeRemi(Point pt,int nx, int ny){
-		Bonus b = new Bonus(pt,bonusType.bMort,1);
+	public void CreeRemi(Point pt, int nx, int ny){
+		Bonus b = new Bonus(pt, bonusType.bMort,1);
 		b.nextX = nx;
 		b.nextY = ny;
 		b.timer =300;
 		World.addBonus(b);
 	}
 
-	public Bonus(Point pt,int numBonus,int rayon){
-		this(pt,bonusType.values()[numBonus],rayon);
+	public Bonus(Point pt, int numBonus, int rayon){
+		this(pt, bonusType.values()[numBonus],rayon);
 	}
 
-	public Bonus(Point pt,bonusType bonus,int rayon){
+	public Bonus(Point pt, bonusType bonus, int rayon){
 		this.pt=pt;
 		this.type = bonus;
 
@@ -85,8 +83,7 @@ public class Bonus {
 			s.grandir();
 			s.grandir();
 			s.grandir();
-			World.sonMartien.play();
-			s.GScore(100);
+			//World.sonMartien.play();
 			break;
 		case bRetrecis:
 			if(s.body.size() >= 1)
@@ -95,47 +92,40 @@ public class Bonus {
 				s.retrecir();
 			if(s.body.size() >= 1)
 				s.retrecir();
-			World.sonMagic.play();
-			s.GScore(200);
+			//World.sonMagic.play();
 			break;
 		case bRapide:
 			s.plusRapide();
-			World.sonSncf.play();
-			s.GScore(500);
+			//World.sonSncf.play();
 			break;
 		case bLent:
 			s.plusLent();
-			World.sonCheval.play();
-			s.GScore(50);
+			//World.sonCheval.play();
 			break;
 		case bMort:
 			s.meurt();
-			s.GScore(1500);
-			World.sonChute.play();
+			//World.sonChute.play();
 		break;
 		case bInverseMalus:
 			s.inverse = !s.inverse;
-			World.sonEclair.play();
-			s.GScore(250);
+			//World.sonEclair.play();
 			break;
 		case bRemis:
-			World.sonPerdu.play();
-			s.GScore(2000);
+			//World.sonPerdu.play();
 			s.invincible = 30;
 			for(int i=-1;i<1;i++)
 				for(int j=-1;j<2;j++)
 					CreeRemi(new Point(pt.x+5*i,pt.y+5*j), i, j);
 		break;
 		case bInvincible:
-			s.invincible = 300;
-			s.GScore(100);
-			World.sonMouette.play();
+			s.invincible = 150;
+			//World.sonMouette.play();
 		break;
 		}
 	}
 
 	private String imagePath(){
-		String path = "images/snake/";
+		String path = "images/snake3001/";
 		switch(type){
 		case bGrandis:
 			path+="Grand";
@@ -170,7 +160,7 @@ public class Bonus {
 	}
 
 	public Boolean isInBonus(Point p){
-		return(this.pt.x-p.x <= rayon && p.x-this.pt.x <= rayon && this.pt.y - p.y <= rayon && p.y-this.pt.y  <= rayon);
+		return(this.pt.x-p.x <= rayon && p.x-this.pt.x <= rayon && this.pt.y - p.y <= rayon && p.y-this.pt.y <= rayon);
 	}
 
 	public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {

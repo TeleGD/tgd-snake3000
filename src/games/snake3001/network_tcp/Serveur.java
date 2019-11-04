@@ -1,4 +1,4 @@
-package snake2.network_tcp;
+package games.snake3001.network_tcp;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -104,7 +104,7 @@ public class Serveur extends Thread implements Runnable{
 	}
 
 	public void readAnswer(Socket socket) throws IOException {
-		BufferedReader dis =  new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		BufferedReader dis = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
 		String messageReceived;
 

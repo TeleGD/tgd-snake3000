@@ -12,7 +12,7 @@ public class MainMenu extends Menu{
 		super.setTitrePrincipal("MULTIGAME 2 DESIGN");
 		super.setTitreSecondaire("Menu Principal");
 		//super.setItems(World1.GAME_NAME,World2.GAME_NAME,World3.GAME_NAME,"Scores", "Quitter");
-		super.setItems("Snake","SnakeReseau","Quitter");
+		super.setItems("Snake3000","Snake3001 (Reseau)","Quitter");
 
 		super.setEnableClignote(false);
 		super.setCouleurClignote(Color.red);
@@ -28,13 +28,13 @@ public class MainMenu extends Menu{
 	public void onOptionItemSelected(int position) {
 		switch (position) {
 		case 0:
-			snake.World.reset();
-			game.enterState(snake.World.ID, new FadeOutTransition(),
+			games.snake3000.World.reset();
+			game.enterState(games.snake3000.World.ID, new FadeOutTransition(),
 					new FadeInTransition());
 			break;
 		case 1:
-			snake2.World.reset();
-			game.enterState(snake2.World.ID, new FadeOutTransition(), new FadeInTransition());
+			games.snake3001.World.reset();
+			game.enterState(games.snake3001.World.ID, new FadeOutTransition(), new FadeInTransition());
 			break;
 		case 2:
 			System.out.println("exit");

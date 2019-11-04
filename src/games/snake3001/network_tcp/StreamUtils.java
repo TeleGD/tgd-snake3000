@@ -1,4 +1,4 @@
-package snake2.network_tcp;
+package games.snake3001.network_tcp;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -11,15 +11,15 @@ public class StreamUtils {
 		try {
 			chaine= "";
 
-		    while(br.ready()){
-		    	char c = (char)br.read();
-		    	if(c=='%'){
-		    		break;
-		    	}
-		    	else {
-			    	chaine += c;
-		    	}
-		    }
+			while(br.ready()){
+				char c = (char)br.read();
+				if(c=='%'){
+					break;
+				}
+				else {
+					chaine += c;
+				}
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

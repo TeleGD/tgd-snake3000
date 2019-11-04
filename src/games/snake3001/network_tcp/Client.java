@@ -1,4 +1,4 @@
-package snake2.network_tcp;
+package games.snake3001.network_tcp;
 
 import java.io.*;
 import java.net.Socket;
@@ -33,8 +33,8 @@ public class Client implements Runnable{
 		try {
 			this.socket = new Socket(serveurIP,port);
 			this.socket.setSoTimeout(0);
-			this.dis =  new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			this.dos =  new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+			this.dis = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			this.dos = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
 			if(handleStream){
 				new Thread(this).start();

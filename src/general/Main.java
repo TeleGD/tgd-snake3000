@@ -1,7 +1,5 @@
 package general;
 
-import java.io.File;
-
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
@@ -34,8 +32,8 @@ public class Main extends StateBasedGame{
 	public void initStatesList(GameContainer container) throws SlickException {
 		addState(new WelcomeMenu());
 		addState(new MainMenu());
-		addState(new snake.World());
-		addState(new snake2.World());
+		addState(new games.snake3000.World());
+		addState(new games.snake3001.World());
 
 		this.enterState(WelcomeMenu.ID);
 	}
