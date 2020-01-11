@@ -20,7 +20,7 @@ public class Client implements Runnable{
 
 	}
 
-	public Client(String serveurIP, int port, boolean handleStream) {
+	private Client(String serveurIP, int port, boolean handleStream) {
 
 		this.serveurIP = serveurIP;
 		this.port = port;
@@ -76,14 +76,5 @@ public class Client implements Runnable{
 
 		}
 	}
-
-	public Socket getSocket() {
-		return socket;
-	}
-
-	public void setHandleStream(boolean b) {
-		handleStream=b;
-	}
-
 
 }

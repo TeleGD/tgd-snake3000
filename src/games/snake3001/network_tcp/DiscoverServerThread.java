@@ -25,7 +25,6 @@ public class DiscoverServerThread extends Thread implements Runnable{
 			byte[] recvBuf;
 			for(int i=0;i<nbRetry;i++){
 
-
 				//ON BROADCASTE A TOUS LE MONDE SUR LE PORT "PORT", LE MESSAGE "MESSAGE_TO_DETECT"
 				byte[] sendData = MESSAGE_TO_DETECT.getBytes();
 				sendPacket = new DatagramPacket(sendData, sendData.length, InetAddress.getByName("255.255.255.255"), PORT);
@@ -66,8 +65,6 @@ public class DiscoverServerThread extends Thread implements Runnable{
 					}
 				}
 			}
-
-
 
 		} catch (SocketException e) {
 			// TODO Auto-generated catch block

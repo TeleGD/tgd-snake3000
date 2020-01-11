@@ -1,31 +1,28 @@
 package games.snake3001;
 
-
 import org.newdawn.slick.*;
 import org.newdawn.slick.state.StateBasedGame;
 
 import java.util.ArrayList;
 
-
 public class Snake {
-	public static int nbcasesh=72;
-	public static int nbcasesl=128;
-	public int horizontal= World.longueur/nbcasesl;
-	public int vertical= World.hauteur/nbcasesh;
+	private static int nbcasesh=72;
+	private static int nbcasesl=128;
+	private int horizontal= World.longueur/nbcasesl;
+	private int vertical= World.hauteur/nbcasesh;
 	public ArrayList<Point> body=new ArrayList<Point>();
 	public Color couleur;
-	public int TDroite;
-	public int TGauche;
+	private int TDroite;
+	private int TGauche;
 	protected boolean rightPress,leftPress;
 	public String nom;
-	public int speed;
-	public int dir;
+	private int speed;
+	private int dir;
 	public int score;
 	public boolean mort ;
 	public boolean inverse;
 	public int invincible;
 	public String ipAdress;
-
 
 	public Snake(Color couleur,int x_init, int TDroite, int TGauche,int taille_init, String nom,int speed) {
 		this.couleur = couleur;
@@ -55,7 +52,7 @@ public class Snake {
 		mort = true;
 	}
 
-	public void move() {
+	private void move() {
 		if (body.size()!=0){
 
 		Point ajout = null;
@@ -96,7 +93,7 @@ public class Snake {
 		}}
 	}
 
-	/*public void turn() {
+	/*private void turn() {
 		if (rightPress) {
 			dir = 1 ;
 			rightPress=false;
@@ -122,7 +119,6 @@ public class Snake {
 
 		}
 	}
-
 
 	public void keyPressed(int key, char c) {
 		if ((key == TDroite && !inverse) || (key == TGauche && inverse)) {
@@ -188,8 +184,6 @@ public class Snake {
 		}
 	}
 
-
-
 	public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
 		for (int i = 0 ; i<body.size(); i++) {
 			g.setColor(couleur);
@@ -214,8 +208,5 @@ public class Snake {
 		}
 			//turn();
 	}
-
-
-
 
 }

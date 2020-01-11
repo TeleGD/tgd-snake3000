@@ -10,19 +10,18 @@ import java.util.Random;
 
 public class Bonus {
 
-	public Point pt;
+	private Point pt;
 
 	public static enum bonusType {bGrandis,bRetrecis,bRapide,bLent,bMort,bInverseBonus,bInverseMalus,bRemis,bInvincible};
 
-
 	public bonusType type;
-	public Image imageBonus;
-	public int rayon;
+	private Image imageBonus;
+	private int rayon;
 
-	public int timer=0;
+	private int timer=0;
 
-	public int nextX=0;
-	public int nextY=0;
+	private int nextX=0;
+	private int nextY=0;
 
 	public static Bonus RandomBonus(Point pt){
 		Random r = new Random();
@@ -50,7 +49,7 @@ public class Bonus {
 		return new Bonus(pt,bonus,r.nextInt(2)+1);
 	}
 
-	public void CreeRemi(Point pt, int nx, int ny){
+	private void CreeRemi(Point pt, int nx, int ny){
 		Bonus b = new Bonus(pt, bonusType.bMort,1);
 		b.nextX = nx;
 		b.nextY = ny;
@@ -58,11 +57,11 @@ public class Bonus {
 		World.addBonus(b);
 	}
 
-	public Bonus(Point pt, int numBonus, int rayon){
+	private Bonus(Point pt, int numBonus, int rayon){
 		this(pt, bonusType.values()[numBonus],rayon);
 	}
 
-	public Bonus(Point pt, bonusType bonus, int rayon){
+	private Bonus(Point pt, bonusType bonus, int rayon){
 		this.pt=pt;
 		this.type = bonus;
 
@@ -180,10 +179,6 @@ public class Bonus {
 				timer--;
 			}
 		}
-	}
-
-	public int getScore(){
-		return 0;
 	}
 
 }

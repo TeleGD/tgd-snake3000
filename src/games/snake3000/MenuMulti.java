@@ -15,24 +15,22 @@ public class MenuMulti {
 
 	private int longueurJeu=(int)(World.longueur*0.8);
 
-	public int hauteurMenu=(int)(World.hauteur/1.45);
-	public int longueurMenu=World.longueur/2;
-	public int debutx=(longueurJeu-longueurMenu)/2+longueurMenu/15;
-	public int debuty=(World.hauteur-hauteurMenu)/2+hauteurMenu/15;
-	public int debutdroiteansx=(longueurJeu+longueurMenu)/2-longueurMenu/10-longueurMenu/8;
-	public TextField nbrJoueurs;
-	public int nJoueur=9;
-	public int pas = World.hauteur/20;
-	public int yn;
-	public String[] nomsJoueurs;
-	public TextField[] fieldNomsJoueurs;
-	public TextField[] touchesClavier;
+	private int hauteurMenu=(int)(World.hauteur/1.45);
+	private int longueurMenu=World.longueur/2;
+	private int debutx=(longueurJeu-longueurMenu)/2+longueurMenu/15;
+	private int debuty=(World.hauteur-hauteurMenu)/2+hauteurMenu/15;
+	private int debutdroiteansx=(longueurJeu+longueurMenu)/2-longueurMenu/10-longueurMenu/8;
+	private TextField nbrJoueurs;
+	private int nJoueur=9;
+	private int pas = World.hauteur/20;
+	private int yn;
+	private TextField[] fieldNomsJoueurs;
+	private TextField[] touchesClavier;
 
-	public int debutNom = longueurJeu/2 - longueurMenu/10;
+	private int debutNom = longueurJeu/2 - longueurMenu/10;
 	private Button boutonStart,boutonNbJoueurs;
 	private Snake[] joueurs;
-	public boolean enleve=false;
-	private int[] touchesDefaut = {Input.KEY_LEFT,Input.KEY_RIGHT, Input.KEY_A, Input.KEY_Z, Input.KEY_O, Input.KEY_P, Input.KEY_W, Input.KEY_X, Input.KEY_B, Input.KEY_N, Input.KEY_NUMPAD1,Input.KEY_NUMPAD2,Input.KEY_NUMPAD8,Input.KEY_NUMPAD9,Input.KEY_Y,Input.KEY_U,Input.KEY_F,Input.KEY_G};
+	private boolean enleve=false;
 	private String[] valTouchesDefaut = {"<-","->","A","Z","O","P","W","X","B","N","1","2","8","9","Y","U","F","G"};
 	private Color[] couleursDefaut =new Color[] {Color.white, Color.blue,Color.red,Color.green,Color.pink,Color.yellow,Color.cyan,Color.orange,Color.magenta};
 	private Color[] couleursJoueurs = couleursDefaut;
@@ -40,10 +38,6 @@ public class MenuMulti {
 	private ColorPicker picker;
 	private TrueTypeFont fontTitle = FontUtils.loadSystemFont("Arial", java.awt.Font.BOLD,25);
 	private TrueTypeFont fontNbJoueurs = FontUtils.loadSystemFont("Arial", java.awt.Font.BOLD,20);
-
-	public MenuMulti() {
-
-	}
 
 	public void init(final GameContainer container, StateBasedGame game) throws SlickException {
 		nbrJoueurs = new TextField(container, debutdroiteansx, debuty+pas-5,longueurMenu/20, TGDComponent.AUTOMATIC);
@@ -100,13 +94,11 @@ public class MenuMulti {
 		boutonStart.setVisible(false);
 	}
 
-
 	private void createJoueurs(GameContainer container) {
 		if (nbrJoueurs.getText().length() ==1) {
 			nJoueur = Integer.parseInt(nbrJoueurs.getText());
 		}
 
-		nomsJoueurs=new String[nJoueur];
 		fieldNomsJoueurs=new TextField[nJoueur];
 		choixCouleur = new Button[nJoueur];
 		touchesClavier = new TextField[nJoueur*2];
@@ -172,8 +164,6 @@ public class MenuMulti {
 			touchesClavier[2*i+1].setBackgroundColorFocused(new Color(255,0,0,0));
 			touchesClavier[2*i+1].removeUnauthorizedKey(Input.KEY_LEFT,Input.KEY_RIGHT,Input.KEY_UP,Input.KEY_DOWN);
 
-
-
 		}
 	}
 
@@ -205,7 +195,6 @@ public class MenuMulti {
 					picker.render(container, game, g);
 
 				}
-
 
 			}
 
@@ -268,6 +257,5 @@ public class MenuMulti {
 
 		return 0;
 	}
-
 
 }

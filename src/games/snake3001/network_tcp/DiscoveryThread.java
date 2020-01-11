@@ -29,7 +29,6 @@ public class DiscoveryThread extends Thread implements Runnable{
 				socket = new DatagramSocket(PORT, InetAddress.getByName("0.0.0.0"));
 				socket.setBroadcast(true);
 
-
 				socket.receive(receivePacket);
 				socket.close();
 
@@ -39,7 +38,6 @@ public class DiscoveryThread extends Thread implements Runnable{
 			}while(!msgReceived.equals(MESSAGE_TO_DETECT));
 
 			System.out.println("MESSAGE RECU DE LA PART DU SERVEUR : "+msgReceived);
-
 
 			byte[] sendData = MESSAGE_DETECTED.getBytes();
 			DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, receivePacket.getAddress(), PORT);
@@ -61,8 +59,6 @@ public class DiscoveryThread extends Thread implements Runnable{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-
 
 	}
 	public void addOnServerDetectedListener(OnServerDetectedListener listener){

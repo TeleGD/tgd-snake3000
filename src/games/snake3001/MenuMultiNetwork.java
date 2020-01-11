@@ -12,9 +12,7 @@ import games.snake3001.network_tcp.DiscoverServerThread;
 import games.snake3001.network_tcp.DiscoveryThread;
 import games.snake3001.network_tcp.Serveur;
 
-import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
@@ -22,15 +20,14 @@ public class MenuMultiNetwork implements Client.SocketListener {
 
 	private int longueurJeu=(int)(World.longueur*0.8);
 
-	public int hauteurMenu=(int)(World.hauteur/1.5);
-	public int longueurMenu= World.longueur/2;
-	public int debutx=(longueurJeu-longueurMenu)/2+longueurMenu/15;
-	public int debuty=(World.hauteur-hauteurMenu)/2+hauteurMenu/10;
-	public int debutdroiteansx=(longueurJeu+longueurMenu)/2-longueurMenu/10-longueurMenu/8;
-	public int nJoueur=0;
-	public int pas = World.hauteur/20;
-	public int yn=debuty+pas;
-	public int debutNom = longueurJeu/2 - longueurMenu/10;
+	private int hauteurMenu=(int)(World.hauteur/1.5);
+	private int longueurMenu= World.longueur/2;
+	private int debutx=(longueurJeu-longueurMenu)/2+longueurMenu/15;
+	private int debuty=(World.hauteur-hauteurMenu)/2+hauteurMenu/10;
+	private int nJoueur=0;
+	private int pas = World.hauteur/20;
+	private int yn=debuty+pas;
+	private int debutNom = longueurJeu/2 - longueurMenu/10;
 	private Button boutonStart;
 	public boolean enleve=false;
 	private ColorPicker picker;
@@ -40,11 +37,6 @@ public class MenuMultiNetwork implements Client.SocketListener {
 	private Button choixCouleur;
 
 	private ArrayList<Snake> snakes =new ArrayList<>();
-	private String nomsJoueurs;
-
-	public MenuMultiNetwork() {
-
-	}
 
 	public void init(final GameContainer container, StateBasedGame game) throws SlickException {
 
@@ -95,10 +87,9 @@ public class MenuMultiNetwork implements Client.SocketListener {
 					}});
 			}});
 
-
 	}
 
-	public Snake findSnakeByIpAdress(String ipAdress){
+	private Snake findSnakeByIpAdress(String ipAdress){
 
 		for(int i=0;i<snakes.size();i++){
 			if(snakes.get(i).ipAdress.equals(ipAdress)){
@@ -111,13 +102,11 @@ public class MenuMultiNetwork implements Client.SocketListener {
 	public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
 		if (!enleve) {
 
-
 			g.setColor(new Color(0,0,255));
 			g.fillRect((longueurJeu-longueurMenu)/2, (World.hauteur-hauteurMenu)/2, longueurMenu, hauteurMenu);
 			g.setColor(new Color(0,0,0));
 			g.drawString("Nom : "+nJoueur, debutx, debuty);
 			g.drawString("nombre de joueurs : "+nJoueur, debutx, debuty+40);
-
 
 			for (int i = 0;i<snakes.size();i+=1) {
 				yn = debuty+40 + i*pas;
@@ -147,8 +136,6 @@ public class MenuMultiNetwork implements Client.SocketListener {
 		choixCouleur.update(container, game, delta);
 
 	}
-
-
 
 	public void keyPressed(int i, char c) {
 		if(i == Input.KEY_S){
@@ -205,17 +192,14 @@ public class MenuMultiNetwork implements Client.SocketListener {
 		Color c = choixCouleur.getBackgroundColor();
 		message += nomJoueursField.getText()+";"+c.getRed()+";"+c.getGreen()+";"+c.getBlue()+";"+c.getAlpha();
 
-
 		World.client.sendString(message);
 		World.client.sendString("get_connected_players");
 		World.client.addSocketListener(MenuMultiNetwork.this);
 	}
 
-
 	public void keyReleased(int i, char c) {
 
 	}
-
 
 	@Override
 	public void onMessageSend(Socket socket, String message) {
@@ -266,10 +250,7 @@ public class MenuMultiNetwork implements Client.SocketListener {
 			int a = Integer.parseInt(split[6]);
 			Color c = new Color(r,g,b,a);
 
-
 			//int xinit =(100-nJoueur)/(nJoueur+1) + *((100-nJoueur)/(nJoueur+1)+1);
-
-			int size= snakes.size();
 
 			snakes.add(new Snake(c,snakes.size()*12+12,Input.KEY_RIGHT,Input.KEY_LEFT,10,nom,10));
 			snakes.get(snakes.size()-1).ipAdress = adresse;

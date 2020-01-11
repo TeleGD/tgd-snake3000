@@ -33,7 +33,6 @@ public class Serveur extends Thread implements Runnable{
 				//On attend qu'un client se connecte
 				Socket socket = serverSocket.accept();
 
-
 				//On traite les connexions avec ce client dans un thread a part pour pas monopoliser le serveur
 				ThreadClient threadClient = new ThreadClient(socket);
 				threadClient.start();
@@ -44,7 +43,6 @@ public class Serveur extends Thread implements Runnable{
 				//On notifie l'ecouteur si il existe
 				if(onClientConnectedListener != null) onClientConnectedListener.onConnected(socket);
 
-
 			}
 			serverSocket.close();
 		} catch (IOException e) {
@@ -53,7 +51,7 @@ public class Serveur extends Thread implements Runnable{
 		}
 	}
 
-	public boolean sendStringToClient(Socket socket,String messageToSend){
+	private boolean sendStringToClient(Socket socket,String messageToSend){
 		if(socket==null || socket.isClosed() || !socket.isConnected()){
 			System.out.println("Socket Invalide"); // Le socket est mort, on ne peut rien envoye
 			return false;
@@ -77,11 +75,11 @@ public class Serveur extends Thread implements Runnable{
 		}
 	}
 
-	public class ThreadClient extends Thread implements Runnable{
+	private class ThreadClient extends Thread implements Runnable{
 
 		private Socket socket;
 
-		public ThreadClient(Socket socket) {
+		private ThreadClient(Socket socket) {
 			this.socket = socket;
 
 		}
@@ -100,10 +98,9 @@ public class Serveur extends Thread implements Runnable{
 
 		}
 
-
 	}
 
-	public void readAnswer(Socket socket) throws IOException {
+	private void readAnswer(Socket socket) throws IOException {
 		BufferedReader dis = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
 		String messageReceived;
@@ -114,21 +111,8 @@ public class Serveur extends Thread implements Runnable{
 		}
 	}
 
-
 	public void addSocketListener(Client.SocketListener socketListener) {
 		this.socketListener=socketListener;
-	}
-
-	public void arreter() {
-		isActive=false;
-	}
-
-	public int getNbClientsConnected() {
-		return sockets.size();
-	}
-
-	public ArrayList<Socket> getSockets() {
-		return sockets;
 	}
 
 	public void addOnClientConnectedListener(OnClientConnectedListener onClientConnectedListener) {
@@ -139,7 +123,5 @@ public class Serveur extends Thread implements Runnable{
 		void onConnected(Socket socket);
 		void onDisconnected(Socket socket);
 	}
-
-
 
 }

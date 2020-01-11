@@ -2,21 +2,20 @@ package games.snake3001.network_tcp;
 
 import java.net.Socket;
 
-
 public class MainTest implements Client.SocketListener {
 	private Serveur serveur;
 	private Client client;
 
-	public MainTest(){
+	private MainTest(){
 
 		//A LANCER SUR L'ORDI SERVEUR
 		//new DiscoverServerThread(2000,20).start(); //Lance le thread pour que les clients auto-détectent ce serveur
-		/*
 		//on lance le serveur TCP sur le port 8887
+		/*
 		serveur = new Serveur(8887);
 		serveur.addSocketListener(this); //informe qu'on va recevoir les messages dans les methodes plus bas
 		serveur.start();
-		serveur.addSocketListener(new SocketListener(){
+		serveur.addSocketListener(new Client.SocketListener(){
 
 			@Override
 			public void onMessageSend(Socket socket, String message) {
@@ -46,7 +45,6 @@ public class MainTest implements Client.SocketListener {
 		 * -  serveur.addSocketListener(SocketListener socketListener); // quand on recoit ou on emet un message
 		 */
 
-
 		//A LANCER SUR UN ORDI CLIENT
 		DiscoveryThread discoveryThread = new DiscoveryThread();
 		discoveryThread.addOnServerDetectedListener(new DiscoveryThread.OnServerDetectedListener(){
@@ -61,7 +59,6 @@ public class MainTest implements Client.SocketListener {
 			}});
 
 		discoveryThread.start(); // Lance la recherche du serveur
-
 
 		/*
 		 * On peut faire coté client:
@@ -84,7 +81,6 @@ public class MainTest implements Client.SocketListener {
 	@Override
 	public void onMessageSend(Socket socket, String message) {
 		System.out.println("Message send : "+message);
-
 
 	}
 

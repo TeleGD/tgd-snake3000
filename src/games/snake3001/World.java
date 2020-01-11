@@ -20,24 +20,22 @@ import java.util.*;
 public class World extends BasicGameState {
 
 	public final static int ID=3;
-	public final static String GAME_NAME = "Snake3001";
 
-	public static int nbcasesh=72;
-	public static int nbcasesl=128;
-	public static MenuMultiNetwork menu;
+	private static int nbcasesh=72;
+	private static int nbcasesl=128;
+	private static MenuMultiNetwork menu;
 	public static int longueur=1280;
 	public static int hauteur=720;
 
 	public static boolean isServer = false;
 
 	private float widthBandeau = 280;
-	public static boolean jeuDemarre = false;
+	private static boolean jeuDemarre = false;
 	private static ArrayList<Bonus> bonus;
 
 	private static ArrayList<Snake> snakes;
 
 	private TrueTypeFont font = FontUtils.loadSystemFont("Arial", java.awt.Font.BOLD,20);
-	private TrueTypeFont fontScore = FontUtils.loadSystemFont("Arial", java.awt.Font.BOLD,15);
 
 	private Button replay,backMenu;
 	private static Music soundMusicBackground;
@@ -50,13 +48,11 @@ public class World extends BasicGameState {
 	@Override
 	public void init(final GameContainer container, final StateBasedGame game) throws SlickException {
 
-
 		try {
 			ipAdress = InetAddress.getLocalHost().getHostAddress();
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
-
 
 		menu = new MenuMultiNetwork();
 		menu.init(container, game);
@@ -104,7 +100,6 @@ public class World extends BasicGameState {
 	@Override
 	public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
 
-
 		for(int i=0;i<snakes.size();i++){
 			snakes.get(i).render(container, game, g);
 			g.setColor(Color.black);
@@ -125,8 +120,6 @@ public class World extends BasicGameState {
 		g.fillRect(World.longueur-widthBandeau+6,60,widthBandeau,5);
 		g.resetFont();
 
-
-
 		if(jeuTermine){
 			g.setColor(Color.black);
 			g.fillRoundRect(World.longueur/2-75, World.hauteur/2-50,150,100,20);
@@ -136,7 +129,6 @@ public class World extends BasicGameState {
 			g.setFont(font);
 			g.drawString("Perdu !", World.longueur/2-30, World.hauteur/2-30);
 		}else{
-
 
 		}
 
@@ -148,7 +140,6 @@ public class World extends BasicGameState {
 		for(int i=0;i<bonus.size();i++){
 			bonus.get(i).render(container, game, g);
 		}
-
 
 		replay.render(container, game, g);
 		backMenu.render(container, game, g);
@@ -168,8 +159,6 @@ public class World extends BasicGameState {
 				return 0;
 			}
 		});
-
-
 
 		if(jeuDemarre){
 
@@ -196,7 +185,6 @@ public class World extends BasicGameState {
 
 				jeuTermine = isFini();
 				addBonus();
-
 
 				for(int i=0;i<snakes.size();i++) {
 					Snake snake = snakes.get(i);
@@ -233,19 +221,11 @@ public class World extends BasicGameState {
 							}
 						}
 
-
-
 					}
 				}
 
-
-
 			}
 		}
-
-
-
-
 
 	}
 
@@ -257,7 +237,6 @@ public class World extends BasicGameState {
 				if(!snakes.get(i).equals(snake)){
 					snakes.get(i).inverse = !snakes.get(i).inverse;
 				}
-
 
 			}
 		}
@@ -287,8 +266,6 @@ public class World extends BasicGameState {
 			bonus.add(Bonus.RandomBonus(new Point(r.nextInt(nbcasesl)-28,r.nextInt(nbcasesh))));
 		}
 	}
-
-
 
 	@Override
 	public int getID() {
@@ -332,7 +309,6 @@ public class World extends BasicGameState {
 		} catch (SlickException e) {
 			e.printStackTrace();
 		}
-
 
 		if(World.serveur!=null){
 			World.serveur.addSocketListener(new Client.SocketListener() {
@@ -388,7 +364,7 @@ public class World extends BasicGameState {
 		//snakes.remove(snake);
 	}
 
-	public boolean isFini() {
+	private boolean isFini() {
 
 		int compt = 0;
 
@@ -406,8 +382,7 @@ public class World extends BasicGameState {
 		return false;
 	}
 
-
-	public static Snake findSnakeByIpAdress(String ipAdress){
+	private static Snake findSnakeByIpAdress(String ipAdress){
 
 		for(int i=0;i<snakes.size();i++){
 			if(snakes.get(i).ipAdress.equals(ipAdress)){
@@ -417,6 +392,5 @@ public class World extends BasicGameState {
 		return new Snake(Color.white,0,Input.KEY_RIGHT,Input.KEY_RIGHT,10,"default",2);
 
 	}
-
 
 }
