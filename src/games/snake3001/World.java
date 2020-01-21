@@ -1,25 +1,34 @@
 package games.snake3001;
 
-import general.ui.Button;
-import general.ui.TGDComponent;
-import general.utils.FontUtils;
-import menus.MainMenu;
-import org.newdawn.slick.*;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Random;
+
+import org.newdawn.slick.Color;
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Input;
+import org.newdawn.slick.Music;
+import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 import org.newdawn.slick.state.transition.FadeInTransition;
 import org.newdawn.slick.state.transition.FadeOutTransition;
+
+import app.AppFont;
+import app.AppLoader;
+import app.ui.Button;
+import app.ui.TGDComponent;
+
 import games.snake3001.network_tcp.Client;
 import games.snake3001.network_tcp.Serveur;
 
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.*;
-
 public class World extends BasicGameState {
-
-	public final static int ID=3;
 
 	private static int nbcasesh=72;
 	private static int nbcasesl=128;
@@ -35,7 +44,7 @@ public class World extends BasicGameState {
 
 	private static ArrayList<Snake> snakes;
 
-	private TrueTypeFont font = FontUtils.loadSystemFont("Arial", java.awt.Font.BOLD,20);
+	private AppFont font = AppLoader.loadFont("/fonts/vt323.ttf", AppFont.BOLD, 20);
 
 	private Button replay,backMenu;
 	private static Music soundMusicBackground;
@@ -45,8 +54,19 @@ public class World extends BasicGameState {
 	public static Serveur serveur;
 	public static Client client;
 
+	private int ID;
+
+	public World(int ID) {
+		this.ID = ID;
+	}
+
 	@Override
-	public void init(final GameContainer container, final StateBasedGame game) throws SlickException {
+	public int getID() {
+		return this.ID;
+	}
+
+	@Override
+	public void init(final GameContainer container, final StateBasedGame game) {
 
 		try {
 			ipAdress = InetAddress.getLocalHost().getHostAddress();
@@ -69,11 +89,7 @@ public class World extends BasicGameState {
 			public void onClick(TGDComponent componenent) {
 				if(soundMusicBackground!=null)soundMusicBackground.stop();
 				menu = new MenuMultiNetwork();
-				try {
-					menu.init(container, game);
-				} catch (SlickException e) {
-					e.printStackTrace();
-				}
+				menu.init(container, game);
 				reset();
 			}
 		});
@@ -89,7 +105,7 @@ public class World extends BasicGameState {
 			@Override
 			public void onClick(TGDComponent componenent) {
 				if(soundMusicBackground!=null)soundMusicBackground.stop();
-				game.enterState(MainMenu.ID,new FadeOutTransition(),new FadeInTransition());
+				game.enterState(1,new FadeOutTransition(),new FadeInTransition());
 			}
 		});
 
@@ -98,7 +114,7 @@ public class World extends BasicGameState {
 	}
 
 	@Override
-	public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
+	public void render(GameContainer container, StateBasedGame game, Graphics g) {
 
 		for(int i=0;i<snakes.size();i++){
 			snakes.get(i).render(container, game, g);
@@ -147,7 +163,7 @@ public class World extends BasicGameState {
 	}
 
 	@Override
-	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
+	public void update(GameContainer container, StateBasedGame game, int delta) {
 		menu.update(container, game, delta);
 		replay.update(container, game,delta);
 		backMenu.update(container, game,delta);
@@ -264,20 +280,6 @@ public class World extends BasicGameState {
 		Random r = new Random();
 		if(r.nextFloat() >= 0.99){
 			bonus.add(Bonus.RandomBonus(new Point(r.nextInt(nbcasesl)-28,r.nextInt(nbcasesh))));
-		}
-	}
-
-	@Override
-	public int getID() {
-		return ID;
-	}
-
-	@Override
-	public void keyReleased(int key, char c){
-		menu.keyReleased(key,c);
-
-		for(int i=0;i<snakes.size();i++){
-			snakes.get(i).keyReleased(key,c);
 		}
 	}
 

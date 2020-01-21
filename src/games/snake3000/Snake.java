@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Input;
-import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 
 public class Snake {
@@ -18,7 +16,6 @@ public class Snake {
 	public Color couleur;
 	private int TDroite;
 	private int TGauche;
-	protected boolean rightPress,leftPress;
 	public String nom;
 	private int speed;
 	private int dir;
@@ -101,41 +98,12 @@ public class Snake {
 		}}
 	}
 
-	/*private void turn() {
-		if (rightPress) {
-			dir = 1 ;
-			rightPress=false;
-		}
-		if (leftPress) {
-			dir = dir -1;
-			leftPress=false;
-		}
-	}*/
-
-	public void keyReleased(int key, char c) {
-
-		switch (key) {
-		case Input.KEY_RIGHT:
-			rightPress = false;
-			break;
-
-		}
-		switch (key) {
-		case Input.KEY_LEFT:
-			leftPress = false;
-			break;
-
-		}
-	}
-
 	public void keyPressed(int key, char c) {
 		if ((key == TDroite && !inverse) || (key == TGauche && inverse)) {
-			rightPress = true;
 			dir += 1;
 			dir = dir % 4;
 		}
 		if ((key == TDroite && inverse) || (key == TGauche && !inverse)) {
-			leftPress = true;
 			dir -= 1;
 			dir += 4;
 			dir = dir % 4;
@@ -192,14 +160,14 @@ public class Snake {
 		}
 	}
 
-	public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
+	public void render(GameContainer container, StateBasedGame game, Graphics g) {
 		for (int i = 0 ; i<body.size(); i++) {
 			g.setColor(couleur);
 			g.fillRect(body.get(i).x*horizontal,body.get(i).y*vertical,horizontal,vertical);
 		}
 	}
 	int compteur = 0;
-	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
+	public void update(GameContainer container, StateBasedGame game, int delta) {
 		if (invincible >0) {
 			if(invincible % 40 > 20)
 				couleur= new Color(couleur.r,couleur.g,couleur.b,0.5f);

@@ -1,32 +1,32 @@
-package general.ui;
+package app.ui;
 
-import general.utils.FontUtils;
 import org.newdawn.slick.Color;
-import org.newdawn.slick.*;
+import org.newdawn.slick.Font;
+import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.state.StateBasedGame;
 
-import java.awt.Font;
+import app.AppFont;
+import app.AppLoader;
 
-
+@SuppressWarnings("serial")
 public class Button extends TGDComponent{
 
-    private static final TrueTypeFont DEFAULT_TEXT_FONT = FontUtils.loadSystemFont("Verdana", Font.BOLD, 14);
-    private String text;
+	private String text;
 
 	private Color textColor;
 	private Color textColorEntered;
 	private Color textColorPressed;
 
-	private TrueTypeFont textFont;
+	private Font textFont;
 	private int textSize;
 
 	private boolean upperCaseLock;
-    private boolean selectable =false;
-    private boolean selected;
-    private Color backgroundColorSelected;
+	private boolean selectable;
+	private boolean selected;
+	private Color backgroundColorSelected;
 
-    public Button(GameContainer container,float x,float y,float width,float height){
+	public Button(GameContainer container,float x,float y,float width,float height){
 		super(container,x,y,width,height);
 	}
 
@@ -44,7 +44,7 @@ public class Button extends TGDComponent{
 		setTextColor(new Color(255,255,255));
 		setTextColorPressed(new Color(255,255,255));
 		setTextColorEntered(new Color(0,0,0));
-		setTextFont(DEFAULT_TEXT_FONT);
+		setTextFont(AppLoader.loadFont("/fonts/vt323.ttf",AppFont.BOLD,textSize));
 
 		setPaddingTop(5);
 		setPaddingBottom(5);
@@ -61,21 +61,22 @@ public class Button extends TGDComponent{
 		setBackgroundColorSelected(getBackgroundColorPressed());
 
 		setUpperCaseLock(false);
-		setVisible(true);
 		setSelectable(false);
 	}
 
 	//SLICK METHOD
 
-	public void update(GameContainer container,StateBasedGame game, int delta) throws SlickException{
+	public void update(GameContainer container,StateBasedGame game, int delta) {
 		super.update(container, game, delta);
 		if(mouseEntered) hasFocus=true;
 	}
 
 	@Override
-	public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
+	public void render(GameContainer container, StateBasedGame game, Graphics g) {
 		super.render(container, game, g);
-		if(!visible)return;
+		if (!visible) {
+			return;
+		}
 
 		if(mousePressed)g.setColor(textColorPressed);
 		else if(mouseEntered)g.setColor(textColorEntered);
@@ -84,10 +85,10 @@ public class Button extends TGDComponent{
 		g.setFont(textFont);
 		g.drawString(text, x+paddingLeft+(getWidth()-paddingLeft-paddingRight)/2-textFont.getWidth(text)/2, y+paddingTop+(getHeight()-paddingTop-paddingBottom)/2-textFont.getHeight(text)/2);
 		g.resetFont();
+
 	}
 
 	//GETTERS AND SETTERS
-
 
 	@Override
 	public float getAutomaticWidth(){
@@ -105,7 +106,6 @@ public class Button extends TGDComponent{
 		this.text = text;
 	}
 
-
 	public Color getTextColor() {
 		return textColor;
 	}
@@ -114,40 +114,41 @@ public class Button extends TGDComponent{
 		this.textColor = textColor;
 	}
 
-	public TrueTypeFont getTextFont() {
+	public Font getTextFont() {
 		return textFont;
 	}
 
-	public void setTextFont(TrueTypeFont textFont) {
+	public void setTextFont(Font textFont) {
 		this.textFont = textFont;
 	}
 
+	@Override
+	public void mouseClicked(int type, int x, int y, int count) {
+		super.mouseClicked(type, x, y, count);
+		if (System.currentTimeMillis() - time > 300) {
+			hasFocus = false;
+		}
+		if (contains(x, y) && hasFocus && visible) {
+			if (selectable) {
+				selected = !selected;
+				if (selected) {
+					setBackgroundColor(getBackgroundColorSelected());
+				} else {
+					setBackgroundColor(getBackgroundColorSelected());
+				}
+			}
+		}
+	}
 
-    @Override
-    public void mouseClicked(int type, int x, int y, int count) {
-        super.mouseClicked(type, x, y, count);
-        if (System.currentTimeMillis() - time > 300) hasFocus = false;
-        if (contains(x, y) && hasFocus && visible) {
-            if (selectable) {
-                selected = !selected;
+	@Override
+	public void mouseMoved(int ox, int oy, int x, int y) {
+		super.mouseMoved(ox, oy, x, y);
+		if (contains(x,y) && visible) {
+			hasFocus = true;
+		}
+	}
 
-                if (selected) setBackgroundColor(getBackgroundColorSelected());
-                else setBackgroundColor(getBackgroundColorSelected());
-            }
-
-        }
-
-    }
-
-    @Override
-    public void mouseMoved(int ox, int oy, int x, int y) {
-        super.mouseMoved(ox, oy, x, y);
-        if(contains(x,y) && visible){
-            hasFocus = true;
-        }
-    }
-
-    public int getTextSize() {
+	public int getTextSize() {
 		return textSize;
 	}
 
@@ -162,7 +163,6 @@ public class Button extends TGDComponent{
 	public void setUpperCaseLock(boolean upperCaseLock) {
 		this.upperCaseLock = upperCaseLock;
 	}
-
 
 	public Color getTextColorEntered() {
 		return textColorEntered;
@@ -180,16 +180,16 @@ public class Button extends TGDComponent{
 		this.textColorPressed = textColorPressed;
 	}
 
+	public void setSelectable(boolean selectable) {
+		this.selectable = selectable;
+	}
 
-    public void setSelectable(boolean selectable) {
-        this.selectable = selectable;
-    }
+	public Color getBackgroundColorSelected() {
+		return backgroundColorSelected;
+	}
 
-    public Color getBackgroundColorSelected() {
-        return backgroundColorSelected;
-    }
+	public void setBackgroundColorSelected(Color backgroundColorSelected) {
+		this.backgroundColorSelected = backgroundColorSelected;
+	}
 
-    public void setBackgroundColorSelected(Color backgroundColorSelected) {
-        this.backgroundColorSelected = backgroundColorSelected;
-    }
 }

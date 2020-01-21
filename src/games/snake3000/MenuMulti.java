@@ -1,15 +1,19 @@
 package games.snake3000;
 
-import general.utils.FontUtils;
-import org.newdawn.slick.*;
+import org.newdawn.slick.Color;
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Input;
 import org.newdawn.slick.state.StateBasedGame;
 
-import general.ui.Button;
-import general.ui.ColorPicker;
-import general.ui.TGDComponent;
-import general.ui.TGDComponent.OnClickListener;
-import general.ui.TextField;
-import general.ui.TextField.EnterActionListener;
+import app.AppFont;
+import app.AppLoader;
+import app.ui.Button;
+import app.ui.ColorPicker;
+import app.ui.TextField;
+import app.ui.TextField.EnterActionListener;
+import app.ui.TGDComponent;
+import app.ui.TGDComponent.OnClickListener;
 
 public class MenuMulti {
 
@@ -31,15 +35,15 @@ public class MenuMulti {
 	private Button boutonStart,boutonNbJoueurs;
 	private Snake[] joueurs;
 	private boolean enleve=false;
-	private String[] valTouchesDefaut = {"<-","->","A","Z","O","P","W","X","B","N","1","2","8","9","Y","U","F","G"};
+	private String[] valTouchesDefaut = {"A","Z","O","P","W","X","B","N","1","2","9","0","4","5","6","7","F","G"};
 	private Color[] couleursDefaut =new Color[] {Color.white, Color.blue,Color.red,Color.green,Color.pink,Color.yellow,Color.cyan,Color.orange,Color.magenta};
 	private Color[] couleursJoueurs = couleursDefaut;
 	private Button[] choixCouleur;
 	private ColorPicker picker;
-	private TrueTypeFont fontTitle = FontUtils.loadSystemFont("Arial", java.awt.Font.BOLD,25);
-	private TrueTypeFont fontNbJoueurs = FontUtils.loadSystemFont("Arial", java.awt.Font.BOLD,20);
+	private AppFont fontTitle = AppLoader.loadFont("/fonts/vt323.ttf", AppFont.BOLD, 25);
+	private AppFont fontNbJoueurs = AppLoader.loadFont("/fonts/vt323.ttf", AppFont.BOLD, 20);
 
-	public void init(final GameContainer container, StateBasedGame game) throws SlickException {
+	public void init(final GameContainer container, StateBasedGame game) {
 		nbrJoueurs = new TextField(container, debutdroiteansx, debuty+pas-5,longueurMenu/20, TGDComponent.AUTOMATIC);
 		nbrJoueurs.setPlaceHolder("");
 		nbrJoueurs.setHasFocus(true);
@@ -149,7 +153,7 @@ public class MenuMulti {
 			touchesClavier[2*i].setTextColor(Color.white);
 			touchesClavier[2*i].setMaxNumberOfLetter(1);
 			touchesClavier[2*i].setBackgroundColorFocused(new Color(255,0,0,0));
-			touchesClavier[2*i].removeUnauthorizedKey(Input.KEY_LEFT,Input.KEY_RIGHT,Input.KEY_UP,Input.KEY_DOWN);
+			touchesClavier[2*i].setOverflowMode(true);
 
 			touchesClavier[2*i+1] = new TextField(container,touchesClavier[2*i].getX()+touchesClavier[2*i].getWidth()+5,yn,hauteurMenu/15,hauteurMenu/15);
 			touchesClavier[2*i+1].setText(valTouchesDefaut[2*i+1]);
@@ -162,12 +166,12 @@ public class MenuMulti {
 			touchesClavier[2*i+1].setUpperCaseLock(true);
 			touchesClavier[2*i+1].setCursorEnabled(false);
 			touchesClavier[2*i+1].setBackgroundColorFocused(new Color(255,0,0,0));
-			touchesClavier[2*i+1].removeUnauthorizedKey(Input.KEY_LEFT,Input.KEY_RIGHT,Input.KEY_UP,Input.KEY_DOWN);
+			touchesClavier[2*i+1].setOverflowMode(true);
 
 		}
 	}
 
-	public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
+	public void render(GameContainer container, StateBasedGame game, Graphics g) {
 		if (!enleve) {
 			g.setColor(new Color(255,255,255));
 			g.fillRect((longueurJeu-longueurMenu)/2-4, (World.hauteur-hauteurMenu)/2-4, longueurMenu+8, hauteurMenu+9);
@@ -203,7 +207,7 @@ public class MenuMulti {
 		}
 	}
 
-	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
+	public void update(GameContainer container, StateBasedGame game, int delta) {
 		nbrJoueurs.update(container, game, delta);
 		boutonStart.update(container, game, delta);
 		boutonNbJoueurs.update(container, game, delta);
@@ -248,12 +252,6 @@ public class MenuMulti {
 		if(s.equals("7"))return Input.KEY_NUMPAD7;
 		if(s.equals("8"))return Input.KEY_NUMPAD8;
 		if(s.equals("9"))return Input.KEY_NUMPAD9;
-		if(s.equals("<-"))return Input.KEY_LEFT;
-		if(s.equals("->"))return Input.KEY_RIGHT;
-		if(s.equals("<"))return Input.KEY_LEFT;
-		if(s.equals(">"))return Input.KEY_RIGHT;
-		if(s.equals("|"))return Input.KEY_UP;
-		if(s.equals("!"))return Input.KEY_DOWN;
 
 		return 0;
 	}

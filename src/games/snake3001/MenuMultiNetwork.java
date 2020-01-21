@@ -1,20 +1,25 @@
 package games.snake3001;
 
-import general.ui.Button;
-import general.ui.ColorPicker;
-import general.ui.TGDComponent;
-import general.ui.TGDComponent.OnClickListener;
-import general.ui.TextField;
-import org.newdawn.slick.*;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.regex.Pattern;
+
+import org.newdawn.slick.Color;
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Input;
 import org.newdawn.slick.state.StateBasedGame;
+
+import app.ui.Button;
+import app.ui.ColorPicker;
+import app.ui.TextField;
+import app.ui.TGDComponent;
+import app.ui.TGDComponent.OnClickListener;
+
 import games.snake3001.network_tcp.Client;
 import games.snake3001.network_tcp.DiscoverServerThread;
 import games.snake3001.network_tcp.DiscoveryThread;
 import games.snake3001.network_tcp.Serveur;
-
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.regex.Pattern;
 
 public class MenuMultiNetwork implements Client.SocketListener {
 
@@ -38,7 +43,7 @@ public class MenuMultiNetwork implements Client.SocketListener {
 
 	private ArrayList<Snake> snakes =new ArrayList<>();
 
-	public void init(final GameContainer container, StateBasedGame game) throws SlickException {
+	public void init(final GameContainer container, StateBasedGame game) {
 
 		final Snake snake = findSnakeByIpAdress(World.ipAdress);
 
@@ -99,7 +104,7 @@ public class MenuMultiNetwork implements Client.SocketListener {
 		return new Snake(Color.white,0,Input.KEY_RIGHT,Input.KEY_RIGHT,10,"default",2);
 	}
 
-	public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
+	public void render(GameContainer container, StateBasedGame game, Graphics g) {
 		if (!enleve) {
 
 			g.setColor(new Color(0,0,255));
@@ -128,7 +133,7 @@ public class MenuMultiNetwork implements Client.SocketListener {
 		}
 	}
 
-	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
+	public void update(GameContainer container, StateBasedGame game, int delta) {
 		if(World.isServer){
 			boutonStart.update(container, game, delta);
 		}
@@ -195,10 +200,6 @@ public class MenuMultiNetwork implements Client.SocketListener {
 		World.client.sendString(message);
 		World.client.sendString("get_connected_players");
 		World.client.addSocketListener(MenuMultiNetwork.this);
-	}
-
-	public void keyReleased(int i, char c) {
-
 	}
 
 	@Override

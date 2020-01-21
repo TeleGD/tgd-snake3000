@@ -1,20 +1,29 @@
 package games.snake3000;
 
-import general.ui.Button;
-import general.ui.TGDComponent;
-import general.utils.FontUtils;
-import menus.MainMenu;
-import org.newdawn.slick.*;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Random;
+
+import org.newdawn.slick.Color;
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Input;
+import org.newdawn.slick.Music;
+import org.newdawn.slick.SlickException;
+import org.newdawn.slick.Sound;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 import org.newdawn.slick.state.transition.FadeInTransition;
 import org.newdawn.slick.state.transition.FadeOutTransition;
 
-import java.util.*;
+import app.AppFont;
+import app.AppLoader;
+import app.ui.Button;
+import app.ui.TGDComponent;
 
 public class World extends BasicGameState {
-
-	public final static int ID=1;
 
 	private static int nbcasesh=72;
 	private static int nbcasesl=128;
@@ -28,7 +37,7 @@ public class World extends BasicGameState {
 
 	private static ArrayList<Snake> snakes;
 
-	private TrueTypeFont font = FontUtils.loadSystemFont("Arial", java.awt.Font.BOLD,20);
+	private AppFont font = AppLoader.loadFont("/fonts/vt323.ttf", AppFont.BOLD, 20);
 
 	static Sound sonMouette;
 	static Sound sonSncf;
@@ -44,80 +53,48 @@ public class World extends BasicGameState {
 	private static boolean jeuTermine = false;
 	private Button config;
 
-	@Override
-	public void init(final GameContainer container, final StateBasedGame game) throws SlickException {
+	private int ID;
+	private int state;
 
-		menu = new MenuMulti();
-		menu.init(container, game);
-
-		sonMouette = new Sound("sounds/snake3000/seagulls-chatting.ogg");
-		sonSncf = new Sound("sounds/snake3000/0564.ogg");
-		sonChute = new Sound("sounds/snake3000/0477.ogg");
-		sonCheval = new Sound("sounds/snake3000/horse-whinnies.ogg");
-		sonEclair = new Sound("sounds/snake3000/ChargedLightningAttack8-Bit.ogg");
-		sonMagic = new Sound("sounds/snake3000/FreezeMagic.ogg");
-		sonMartien = new Sound("sounds/snake3000/martian-gun.ogg");
-		sonPerdu = new Sound("sounds/snake3000/perdu.ogg");
-
-		replay = new Button(container,World.longueur - widthBandeau+20, World.hauteur-150,widthBandeau-40,40);
-		replay.setText("REJOUER");
-		replay.setBackgroundColor(Color.black);
-		replay.setBackgroundColorEntered(Color.white);
-		replay.setTextColor(Color.white);
-		replay.setTextColorEntered(Color.black);
-		replay.setCornerRadius(25);
-		replay.setOnClickListener(new TGDComponent.OnClickListener() {
-			@Override
-			public void onClick(TGDComponent componenent) {
-				if(soundMusicBackground!=null)soundMusicBackground.stop();
-				reset();
-				menu.startGame();
-			}
-		});
-
-		config = new Button(container,World.longueur - widthBandeau+20, World.hauteur-100,widthBandeau-40,40);
-		config.setText("CONFIGURATION");
-		config.setBackgroundColor(Color.black);
-		config.setBackgroundColorEntered(Color.white);
-		config.setTextColor(Color.white);
-		config.setTextColorEntered(Color.black);
-		config.setCornerRadius(25);
-		config.setOnClickListener(new TGDComponent.OnClickListener() {
-			@Override
-			public void onClick(TGDComponent componenent) {
-				if(soundMusicBackground!=null)soundMusicBackground.stop();
-				menu = new MenuMulti();
-				try {
-					menu.init(container, game);
-				} catch (SlickException e) {
-					e.printStackTrace();
-				}
-				reset();
-			}
-		});
-
-		backMenu = new Button(container,World.longueur - widthBandeau+20, World.hauteur-50,widthBandeau-40,40);
-		backMenu.setText("RETOUR AU MENU");
-		backMenu.setBackgroundColor(Color.black);
-		backMenu.setBackgroundColorEntered(Color.white);
-		backMenu.setTextColor(Color.white);
-		backMenu.setTextColorEntered(Color.black);
-		backMenu.setCornerRadius(25);
-		backMenu.setOnClickListener(new TGDComponent.OnClickListener() {
-			@Override
-			public void onClick(TGDComponent componenent) {
-				if(soundMusicBackground!=null)soundMusicBackground.stop();
-				game.enterState(MainMenu.ID,new FadeOutTransition(),new FadeInTransition());
-			}
-		});
-
-		reset();
-
+	public World(int ID) {
+		this.ID = ID;
+		this.state = 0;
 	}
 
 	@Override
-	public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
+	public int getID() {
+		return this.ID;
+	}
 
+	@Override
+	public void init(final GameContainer container, final StateBasedGame game) {
+		/* Méthode exécutée une unique fois au chargement du programme */
+	}
+
+	@Override
+	public void enter(GameContainer container, StateBasedGame game) {
+		/* Méthode exécutée à l'apparition de la page */
+		if (this.state == 0) {
+			this.play(container, game);
+		} else if (this.state == 2) {
+			this.resume(container, game);
+		}
+	}
+
+	@Override
+	public void leave(GameContainer container, StateBasedGame game) {
+		/* Méthode exécutée à la disparition de la page */
+		if (this.state == 1) {
+			this.pause(container, game);
+		} else if (this.state == 3) {
+			this.stop(container, game);
+			this.state = 0; // TODO: remove
+		}
+	}
+
+	@Override
+	public void render(GameContainer container, StateBasedGame game, Graphics g) {
+		/* Méthode exécutée environ 60 fois par seconde */
 		for(int i=0;i<bonus.size();i++){
 			bonus.get(i).render(container, game, g);
 		}
@@ -166,7 +143,13 @@ public class World extends BasicGameState {
 	}
 
 	@Override
-	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
+	public void update(GameContainer container, StateBasedGame game, int delta) {
+		/* Méthode exécutée environ 60 fois par seconde */
+		Input input = container.getInput();
+		if (input.isKeyDown(Input.KEY_ESCAPE)) {
+			this.setState(1);
+			game.enterState(2, new FadeOutTransition(), new FadeInTransition());
+		}
 		menu.update(container, game, delta);
 		replay.update(container, game,delta);
 		backMenu.update(container, game,delta);
@@ -229,6 +212,95 @@ public class World extends BasicGameState {
 
 	}
 
+	public void play(GameContainer container, StateBasedGame game) {
+		/* Méthode exécutée une unique fois au début du jeu */
+		menu = new MenuMulti();
+		menu.init(container, game);
+
+		try {
+		sonMouette = new Sound("sounds/snake3000/seagulls-chatting.ogg");
+		sonSncf = new Sound("sounds/snake3000/0564.ogg");
+		sonChute = new Sound("sounds/snake3000/0477.ogg");
+		sonCheval = new Sound("sounds/snake3000/horse-whinnies.ogg");
+		sonEclair = new Sound("sounds/snake3000/ChargedLightningAttack8-Bit.ogg");
+		sonMagic = new Sound("sounds/snake3000/FreezeMagic.ogg");
+		sonMartien = new Sound("sounds/snake3000/martian-gun.ogg");
+		sonPerdu = new Sound("sounds/snake3000/perdu.ogg");
+		} catch (SlickException e) {
+			e.printStackTrace();
+		}
+
+		replay = new Button(container,World.longueur - widthBandeau+20, World.hauteur-150,widthBandeau-40,40);
+		replay.setText("REJOUER");
+		replay.setBackgroundColor(Color.black);
+		replay.setBackgroundColorEntered(Color.white);
+		replay.setTextColor(Color.white);
+		replay.setTextColorEntered(Color.black);
+		replay.setCornerRadius(25);
+		replay.setOnClickListener(new TGDComponent.OnClickListener() {
+			@Override
+			public void onClick(TGDComponent componenent) {
+				if(soundMusicBackground!=null)soundMusicBackground.stop();
+				reset();
+				menu.startGame();
+			}
+		});
+
+		config = new Button(container,World.longueur - widthBandeau+20, World.hauteur-100,widthBandeau-40,40);
+		config.setText("CONFIGURATION");
+		config.setBackgroundColor(Color.black);
+		config.setBackgroundColorEntered(Color.white);
+		config.setTextColor(Color.white);
+		config.setTextColorEntered(Color.black);
+		config.setCornerRadius(25);
+		config.setOnClickListener(new TGDComponent.OnClickListener() {
+			@Override
+			public void onClick(TGDComponent componenent) {
+				if(soundMusicBackground!=null)soundMusicBackground.stop();
+				menu = new MenuMulti();
+				menu.init(container, game);
+				reset();
+			}
+		});
+
+		backMenu = new Button(container,World.longueur - widthBandeau+20, World.hauteur-50,widthBandeau-40,40);
+		backMenu.setText("RETOUR AU MENU");
+		backMenu.setBackgroundColor(Color.black);
+		backMenu.setBackgroundColorEntered(Color.white);
+		backMenu.setTextColor(Color.white);
+		backMenu.setTextColorEntered(Color.black);
+		backMenu.setCornerRadius(25);
+		backMenu.setOnClickListener(new TGDComponent.OnClickListener() {
+			@Override
+			public void onClick(TGDComponent componenent) {
+				if(soundMusicBackground!=null)soundMusicBackground.stop();
+				game.enterState(1,new FadeOutTransition(),new FadeInTransition());
+			}
+		});
+
+		reset();
+	}
+
+	public void pause(GameContainer container, StateBasedGame game) {
+		/* Méthode exécutée lors de la mise en pause du jeu */
+	}
+
+	public void resume(GameContainer container, StateBasedGame game) {
+		/* Méthode exécutée lors de la reprise du jeu */
+	}
+
+	public void stop(GameContainer container, StateBasedGame game) {
+		/* Méthode exécutée une unique fois à la fin du jeu */
+	}
+
+	public void setState(int state) {
+		this.state = state;
+	}
+
+	public int getState() {
+		return this.state;
+	}
+
 	private void applyBonus(Bonus bonus, Snake snake ) {
 		bonus.applyBonus(snake);
 
@@ -264,18 +336,6 @@ public class World extends BasicGameState {
 		Random r = new Random();
 		if(r.nextFloat() >= 0.99){
 			bonus.add(Bonus.RandomBonus(new Point(r.nextInt(nbcasesl)-28,r.nextInt(nbcasesh))));
-		}
-	}
-
-	@Override
-	public int getID() {
-		return ID;
-	}
-
-	@Override
-	public void keyReleased(int key, char c){
-		for(int i=0;i<snakes.size();i++){
-			snakes.get(i).keyReleased(key,c);
 		}
 	}
 

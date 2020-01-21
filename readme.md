@@ -8,9 +8,9 @@
 
 Ce dépôt n'est plus maintenu et subsiste uniquement en tant qu'archive.
 
-Les jeux suivants sont désormais développés au sein du dépôt [tgd-projet_2018](https://github.com/TeleGD/tgd-projet_2018) :
+Les jeux suivants sont désormais développés au sein du dépôt [tgd-telecom-party](https://github.com/TeleGD/tgd-telecom-party) :
 
-* [tgd-snake3000/snake3000](https://github.com/TeleGD/tgd-snake3000/tree/master/src/games/snake3000) -> [tgd-projet_2018/snake](https://github.com/TeleGD/tgd-projet_2018/tree/master/src/games/snake)
+* [tgd-snake3000/snake3000](https://github.com/TeleGD/tgd-snake3000/tree/master/src/games/snake3000) -> [tgd-telecom-party/snake3000](https://github.com/TeleGD/tgd-telecom-party/tree/master/src/games/snake3000)
 
 Les jeux suivants ne disposent plus d'aucun support connu :
 
