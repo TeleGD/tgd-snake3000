@@ -4,7 +4,10 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
+import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
+import org.newdawn.slick.state.transition.FadeInTransition;
+import org.newdawn.slick.state.transition.FadeOutTransition;
 
 import app.AppFont;
 import app.AppLoader;
@@ -15,26 +18,22 @@ import app.ui.TextField.EnterActionListener;
 import app.ui.TGDComponent;
 import app.ui.TGDComponent.OnClickListener;
 
-public class MenuMulti {
+public class MenuMulti extends BasicGameState {
 
-	private int longueurJeu=(int)(World.longueur*0.8);
-
-	private int hauteurMenu=(int)(World.hauteur/1.45);
-	private int longueurMenu=World.longueur/2;
-	private int debutx=(longueurJeu-longueurMenu)/2+longueurMenu/15;
-	private int debuty=(World.hauteur-hauteurMenu)/2+hauteurMenu/15;
-	private int debutdroiteansx=(longueurJeu+longueurMenu)/2-longueurMenu/10-longueurMenu/8;
+	private int longueurJeu;
+	private int hauteurMenu;
+	private int longueurMenu;
+	private int debutx;
+	private int debuty;
+	private int debutdroiteansx;
 	private TextField nbrJoueurs;
-	private int nJoueur=9;
-	private int pas = World.hauteur/20;
-	private int yn;
+	private int nJoueur;
+	private int pas;
 	private TextField[] fieldNomsJoueurs;
 	private TextField[] touchesClavier;
+	private int debutNom;
 
-	private int debutNom = longueurJeu/2 - longueurMenu/10;
 	private Button boutonStart,boutonNbJoueurs;
-	private Snake[] joueurs;
-	private boolean enleve=false;
 	private String[] valTouchesDefaut = {"A","Z","O","P","W","X","B","N","1","2","9","0","4","5","6","7","F","G"};
 	private Color[] couleursDefaut =new Color[] {Color.white, Color.blue,Color.red,Color.green,Color.pink,Color.yellow,Color.cyan,Color.orange,Color.magenta};
 	private Color[] couleursJoueurs = couleursDefaut;
@@ -43,7 +42,32 @@ public class MenuMulti {
 	private AppFont fontTitle = AppLoader.loadFont("/fonts/vt323.ttf", AppFont.BOLD, 25);
 	private AppFont fontNbJoueurs = AppLoader.loadFont("/fonts/vt323.ttf", AppFont.BOLD, 20);
 
-	public void init(final GameContainer container, StateBasedGame game) {
+	private int ID;
+
+	public MenuMulti(int ID) {
+		this.ID = ID;
+	}
+
+	@Override
+	public int getID() {
+		return this.ID;
+	}
+
+	public void init(GameContainer container, StateBasedGame game) {
+		/* Méthode exécutée une unique fois au chargement du programme */
+		int width = container.getWidth();
+		int height = container.getHeight();
+		longueurJeu=(int)(container.getWidth()*.8);
+
+		hauteurMenu=(int)(container.getHeight()/1.45);
+		longueurMenu=container.getWidth()/2;
+		debutx=(longueurJeu-longueurMenu)/2+longueurMenu/15;
+		debuty=(container.getHeight()-hauteurMenu)/2+hauteurMenu/15;
+		debutdroiteansx=(longueurJeu+longueurMenu)/2-longueurMenu/10-longueurMenu/8;
+		nJoueur=9;
+		pas = container.getHeight()/20;
+		debutNom = longueurJeu/2 - longueurMenu/10;
+
 		nbrJoueurs = new TextField(container, debutdroiteansx, debuty+pas-5,longueurMenu/20, TGDComponent.AUTOMATIC);
 		nbrJoueurs.setPlaceHolder("");
 		nbrJoueurs.setHasFocus(true);
@@ -70,32 +94,40 @@ public class MenuMulti {
 
 			}});
 
-		boutonStart = new Button("START",container,longueurJeu/2-longueurMenu/6,(World.hauteur+hauteurMenu)/2-8*hauteurMenu/75,longueurMenu/3,hauteurMenu/15);
+		boutonStart = new Button("START",container,longueurJeu/2-longueurMenu/6,(height+hauteurMenu)/2-8*hauteurMenu/75,longueurMenu/3,hauteurMenu/15);
 		boutonStart.setBackgroundColor(new Color(0,200,0));
 		boutonStart.setVisible(true);
 		boutonStart.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(TGDComponent componenent) {
-				startGame();
+				startGame((World) game.getState(4));
+				game.enterState(4, new FadeOutTransition(), new FadeInTransition());
 			}});
 
-		picker = new ColorPicker(container,debutx,0,World.longueur/5,World.hauteur/4);
+		picker = new ColorPicker(container,debutx,0,width/5,height/4);
 		picker.setVisible(false);
 		createJoueurs(container);
 	}
 
-	public void startGame() {
-		if (nJoueur!=0) {
-			// TODO Auto-generated method stub
-			joueurs = new Snake[nJoueur];
-			for (int i = 0;i<nJoueur;i+=1) {
-				joueurs[i] = new Snake(couleursJoueurs[i],(100-nJoueur)/(nJoueur+1) + i*((100-nJoueur)/(nJoueur+1)+1),getInputValue(touchesClavier[2*i+1].getText()),getInputValue(touchesClavier[2*i].getText()),10,fieldNomsJoueurs[i].getText(),10);
+	public void startGame(World world) {
+		int snakeCount = this.nJoueur;
+		if (snakeCount != 0) {
+			int columns = World.getColumns();
+			Snake[] snakes = new Snake[nJoueur];
+			Color[] colors = this.couleursJoueurs;
+			TextField[] names = this.fieldNomsJoueurs;
+			TextField[] keys = this.touchesClavier;
+			for (int i = 0; i < snakeCount; ++i) {
+				Color color = colors[i];
+				String name = names[i].getText();
+				int leftKey = this.getInputValue(keys[i * 2].getText());
+				int rightKey = this.getInputValue(keys[i * 2 + 1].getText());
+				int posX = (i * 2 + 1) * columns / (snakeCount * 2);
+				snakes[i] = new Snake(color, name, leftKey, rightKey, posX);
 			}
-			World.setSnakes(joueurs);
-			enleve = true;
+			world.setSnakes(snakes);
 		}
-		boutonStart.setVisible(false);
 	}
 
 	private void createJoueurs(GameContainer container) {
@@ -108,7 +140,7 @@ public class MenuMulti {
 		touchesClavier = new TextField[nJoueur*2];
 
 		for (int i = 0;i<nJoueur;i+=1) {
-			yn = debuty + (i+2)*pas+10;
+			int yn = debuty + (i+2)*pas+10;
 			fieldNomsJoueurs[i] = new TextField(container , debutNom , yn , longueurMenu/3 , TGDComponent.AUTOMATIC );
 			fieldNomsJoueurs[i].setBackgroundColor(Color.black);
 			fieldNomsJoueurs[i].setTextColor(couleursJoueurs[i]);
@@ -171,12 +203,19 @@ public class MenuMulti {
 		}
 	}
 
+	public void update(GameContainer container, StateBasedGame game, int delta) {
+		nbrJoueurs.update(container, game, delta);
+		boutonStart.update(container, game, delta);
+		boutonNbJoueurs.update(container, game, delta);
+		picker.update(container, game, delta);
+	}
+
 	public void render(GameContainer container, StateBasedGame game, Graphics g) {
-		if (!enleve) {
+			int height = container.getHeight();
 			g.setColor(new Color(255,255,255));
-			g.fillRect((longueurJeu-longueurMenu)/2-4, (World.hauteur-hauteurMenu)/2-4, longueurMenu+8, hauteurMenu+9);
+			g.fillRect((longueurJeu-longueurMenu)/2-4, (height-hauteurMenu)/2-4, longueurMenu+8, hauteurMenu+9);
 			g.setColor(new Color(100,100,200));
-			g.fillRect((longueurJeu-longueurMenu)/2, (World.hauteur-hauteurMenu)/2, longueurMenu, hauteurMenu);
+			g.fillRect((longueurJeu-longueurMenu)/2, (height-hauteurMenu)/2, longueurMenu, hauteurMenu);
 			g.setColor(new Color(255,255,255));
 			g.setFont(fontTitle);
 			g.drawString("Configuration", longueurJeu/2-g.getFont().getWidth("Configuration")/2, debuty-pas/2);
@@ -187,7 +226,7 @@ public class MenuMulti {
 			nbrJoueurs.render(container, game, g);
 			g.resetFont();
 			for (int i = 1;i<=nJoueur;i+=1) {
-				yn = debuty + (i+1)*pas+10;
+				int yn = debuty + (i+1)*pas+10;
 				g.setColor(new Color(0,0,0));
 				if (fieldNomsJoueurs[i-1]!=null) {
 					g.drawString("Nom Joueur "+i+" :",debutx,yn+5);
@@ -204,14 +243,6 @@ public class MenuMulti {
 
 			boutonStart.render(container, game, g);
 			boutonNbJoueurs.render(container, game, g);
-		}
-	}
-
-	public void update(GameContainer container, StateBasedGame game, int delta) {
-		nbrJoueurs.update(container, game, delta);
-		boutonStart.update(container, game, delta);
-		boutonNbJoueurs.update(container, game, delta);
-		picker.update(container, game, delta);
 	}
 
 	private int getInputValue(String s) {

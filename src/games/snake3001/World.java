@@ -66,7 +66,7 @@ public class World extends BasicGameState {
 	}
 
 	@Override
-	public void init(final GameContainer container, final StateBasedGame game) {
+	public void init(GameContainer container, StateBasedGame game) {
 
 		try {
 			ipAdress = InetAddress.getLocalHost().getHostAddress();

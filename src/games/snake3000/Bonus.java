@@ -5,187 +5,239 @@ import java.util.Random;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
+import org.newdawn.slick.openal.Audio;
 import org.newdawn.slick.state.StateBasedGame;
+
+import app.AppLoader;
 
 public class Bonus {
 
-	private Point pt;
-
-	public static enum bonusType {bGrandis,bRetrecis,bRapide,bLent,bMort,bInverseBonus,bInverseMalus,bRemis,bInvincible};
-
-	public bonusType type;
-	private Image imageBonus;
-	private int rayon;
-
-	private int timer=0;
-
-	private int nextX=0;
-	private int nextY=0;
-
-	public static Bonus RandomBonus(Point pt){
-		Random r = new Random();
-		double b = r.nextFloat();
-		bonusType bonus;
-		if(b < 0.40)
-			bonus = bonusType.bGrandis;
-		else if(b < 0.50)
-			bonus = bonusType.bRetrecis;
-		else if(b < 0.65)
-			bonus = bonusType.bRapide;
-		else if(b < 0.75)
-			bonus = bonusType.bLent;
-		else if(b < 0.80)
-			bonus = bonusType.bInverseBonus;
-		else if(b < 0.90)
-			bonus = bonusType.bInverseMalus;
-		else if(b < 0.95)
-			bonus = bonusType.bInvincible;
-		else if(b < 0.98)
-			bonus = bonusType.bMort;
-		else
-			bonus = bonusType.bRemis;
-
-		return new Bonus(pt,bonus,r.nextInt(2)+1);
-	}
-
-	private void CreeRemi(Point pt,int nx, int ny){
-		Bonus b = new Bonus(pt,bonusType.bMort,1);
-		b.nextX = nx;
-		b.nextY = ny;
-		b.timer =300;
-		World.addBonus(b);
-	}
-
-	private Bonus(Point pt,int numBonus,int rayon){
-		this(pt,bonusType.values()[numBonus],rayon);
-	}
-
-	private Bonus(Point pt,bonusType bonus,int rayon){
-		this.pt=pt;
-		this.type = bonus;
-
-		try{
-			this.imageBonus = new Image(imagePath());
+	public static Bonus createRandomBonus(Random random) {
+		BonusType type;
+		double b = random.nextFloat();
+		// 1f - (9f - n) * (9f - n) / 100f pour n allant de 0f à 8f
+		if (b < .19f) {
+			type = BonusType.shrink;
+		} else if (b < .36f) {
+			type = BonusType.expand;
+		} else if (b < .51f) {
+			type = BonusType.decelerate;
+		} else if (b < .64f) {
+			type = BonusType.accelerate;
+		} else if (b < .75f) {
+			type = BonusType.reverseSelf;
+		} else if (b < .84f) {
+			type = BonusType.reverseOthers;
+		} else if (b < .91f) {
+			type = BonusType.kill;
+		} else if (b < .96f) {
+			type = BonusType.boost;
+		} else if (b < .99f) {
+			type = BonusType.surprise;
+		} else {
+			type = BonusType.trap;
 		}
-		catch(Exception e){
-			e.printStackTrace();
-		}
-
-		this.rayon = rayon;
+		boolean big = random.nextBoolean();
+		int posX = random.nextInt(World.getColumns());
+		int posY = random.nextInt(World.getRows());
+		return new Bonus(type, big, posX, posY);
 	}
 
-	public void applyBonus(Snake s){
-		switch(this.type){
-		case bGrandis:
-			s.grandir();
-			s.grandir();
-			s.grandir();
-			s.grandir();
-			World.sonMartien.play();
-			s.GScore(100);
-			break;
-		case bRetrecis:
-			if(s.body.size() >= 1)
-				s.retrecir();
-			if(s.body.size() >= 1)
-				s.retrecir();
-			if(s.body.size() >= 1)
-				s.retrecir();
-			World.sonMagic.play();
-			s.GScore(200);
-			break;
-		case bRapide:
-			s.plusRapide();
-			World.sonSncf.play();
-			s.GScore(500);
-			break;
-		case bLent:
-			s.plusLent();
-			World.sonCheval.play();
-			s.GScore(50);
-			break;
-		case bMort:
-			s.meurt();
-			s.GScore(1500);
-			World.sonChute.play();
-		break;
-		case bInverseMalus:
-			s.inverse = !s.inverse;
-			World.sonEclair.play();
-			s.GScore(250);
-			break;
-		case bRemis:
-			World.sonPerdu.play();
-			s.GScore(2000);
-			s.invincible = 30;
-			for(int i=-1;i<1;i++)
-				for(int j=-1;j<2;j++)
-					CreeRemi(new Point(pt.x+5*i,pt.y+5*j), i, j);
-		break;
-		case bInvincible:
-			s.invincible = 300;
-			s.GScore(100);
-			World.sonMouette.play();
-		break;
-		}
-	}
+	private BonusType type;
+	private boolean big;
+	private int posX;
+	private int posY;
+	private int dirX;
+	private int dirY;
+	private int timer;
+	private boolean consumed;
+	private Image image;
+	private Audio sound;
 
-	private String imagePath(){
-		String path = "images/snake3000/";
-		switch(type){
-		case bGrandis:
-			path+="Grand";
-			break;
-		case bRetrecis:
-			path+="Petit";
-		break;
-		case bRapide:
-			path+="Lapin";
-		break;
-		case bLent:
-			path+="Tortue";
-		break;
-		case bMort:
-			path+="Remi";
-		break;
-		case bInverseBonus:
-			path+="InverseBonus";
-		break;
-		case bInverseMalus:
-			path+="InverseMalus";
-		break;
-		case bRemis:
-			path+="clown";
-		break;
-		case bInvincible:
-			path+="mouette";
-		break;
-		}
-
-		return path+".png";
-	}
-
-	public Boolean isInBonus(Point p){
-		return(this.pt.x-p.x <= rayon && p.x-this.pt.x <= rayon && this.pt.y - p.y <= rayon && p.y-this.pt.y <= rayon);
-	}
-
-	public void render(GameContainer container, StateBasedGame game, Graphics g) {
-		imageBonus.draw(pt.x*10-10*rayon,pt.y*10-10*rayon,10+20*rayon,10+20*rayon);
+	private Bonus(BonusType type, boolean big, int posX, int posY) {
+		int columns = World.getColumns();
+		int rows = World.getRows();
+		this.type = type;
+		this.big = big;
+		this.posX = (posX % columns + columns) % columns;
+		this.posY = (posY % rows + rows) % rows;
+		this.dirX = 0;
+		this.dirY = 0;
+		this.timer = 0;
+		this.image = AppLoader.loadPicture("/images/snake3000/" + type + ".png");
+		this.sound = AppLoader.loadAudio("/sounds/snake3000/" + type + ".ogg");
 	}
 
 	public void update(GameContainer container, StateBasedGame game, int delta) {
-		if(type == bonusType.bMort){
-			if(timer > 0){
-				this.pt.x = (pt.x + nextX) %128;
-				if (pt.x < 0)
-					pt.x += 128;
-				this.pt.y = (pt.y + nextY) %72;
-				if(pt.y < 0)
-					pt.y+= 72;
+		if (this.isConsumed()) {
+			return;
+		}
+		if (timer > 0) {
+			int columns = World.getColumns();
+			int rows = World.getRows();
+			this.posX = ((this.posX + this.dirX) % columns + columns) % columns;
+			this.posY = ((this.posY + this.dirY) % rows + rows) % rows;
+			timer = Math.max(timer - delta, 0);
+		}
+	}
 
-				timer--;
+	public void render(GameContainer container, StateBasedGame game, Graphics context) {
+		if (this.isConsumed()) {
+			return;
+		}
+		int caseSize = World.getCaseSize();
+		int gridWidth = World.getColumns() * caseSize;
+		int gridHeight = World.getRows() * caseSize;
+		int size = this.getSize() * caseSize;
+		int posX = this.posX * caseSize;
+		int posY = this.posY * caseSize;
+		Image image = this.image;
+		int imageWidth = image.getWidth();
+		int imageHeight = image.getHeight();
+		for (int i = -1; i < 1; ++i) {
+			int x0 = posX + gridWidth * i;
+			int x1 = x0 + size;
+			for (int j = -1; j < 1; ++j) {
+				int y0 = posY + gridHeight * j;
+				int y1 = y0 + size;
+				context.drawImage(image, x0, y0, x1, y1, 0, 0, imageWidth, imageHeight);
 			}
 		}
+	}
+
+	public boolean isConsumed() {
+		return this.consumed;
+	}
+
+	public void apply(World world, Snake snake) {
+		if (this.consumed) {
+			return;
+		}
+		this.consumed = true;
+		this.sound.playAsSoundEffect(1, .3f, false);
+		int score = 0;
+		// termes 3, 2, 5, 4, 7, 6, 9, 8, 11, 10 de la suite de Fibonacci
+		switch (this.type) {
+			case shrink: {
+				for (int i = 0; i < 3; ++i) {
+					snake.shrink();
+				}
+				score = 2000;
+				break;
+			}
+			case expand: {
+				for (int i = 0; i < 4; ++i) {
+					snake.expand();
+				}
+				score = 1000;
+				break;
+			}
+			case decelerate: {
+				snake.decelerate();
+				score = 5000;
+				break;
+			}
+			case accelerate: {
+				snake.accelerate();
+				score = 3000;
+				break;
+			}
+			case reverseSelf: {
+				snake.reverse();
+				score = 13000;
+				break;
+			}
+			case reverseOthers: {
+				for (Snake otherSnake: world.getSnakes()) {
+					if (otherSnake == snake) {
+						continue;
+					}
+					otherSnake.reverse();
+				}
+				score = 8000;
+				break;
+			}
+			case kill: {
+				snake.kill();
+				score = 34000;
+				break;
+			}
+			case boost: {
+				snake.boost(5000);
+				score = 21000;
+				break;
+			}
+			case surprise: {
+				BonusType type = BonusType.boost;
+				boolean big = this.big;
+				int size = this.getSize();
+				int posX = this.posX;
+				int posY = this.posY;
+				for (int i = 0; i < 2; ++i) {
+					int dirX = i * 2 - 1;
+					for (int j = 0; j < 2; ++j) {
+						int dirY = j * 2 - 1;
+						Bonus bonus = new Bonus(type, big, posX + size * dirX, posY + size * dirY);
+						bonus.dirX = dirX;
+						bonus.dirY = dirY;
+						bonus.timer = 2000;
+						world.addBonus(bonus);
+					}
+				}
+				score = 89000;
+				break;
+			}
+			case trap: {
+				snake.boost(1000);
+				BonusType type = BonusType.kill;
+				boolean big = this.big;
+				int size = this.getSize();
+				int posX = this.posX;
+				int posY = this.posY;
+				for (int i = -1; i < 2; ++i) {
+					for (int j = -1; j < 2; ++j) {
+						if (i == 0 && j == 0) {
+							continue;
+						}
+						Bonus bonus = new Bonus(type, big, posX + size * i, posY + size * j);
+						bonus.dirX = i;
+						bonus.dirY = j;
+						bonus.timer = 5000;
+						world.addBonus(bonus);
+					}
+				}
+				score = 55000;
+				break;
+			}
+		}
+		snake.gain(score);
+		world.removeBonus(this);
+	}
+
+	public boolean contains(Point otherPoint) {
+		if (this.isConsumed() || otherPoint == null) {
+			return false;
+		}
+		int x = otherPoint.getX();
+		int y = otherPoint.getY();
+		int size = this.getSize();
+		int x0 = this.posX;
+		int x1 = x0 + size;
+		int y0 = this.posY;
+		int y1 = y0 + size;
+		int columns = World.getColumns();
+		int rows = World.getRows();
+		if (x1 > x + columns) {
+			x += columns;
+		}
+		if (y1 > y + rows) {
+			y += rows;
+		}
+		return x >= x0 && x < x1 && y >= y0 && y < y1;
+	}
+
+	private int getSize() {
+		return this.big ? 7 : 3;
 	}
 
 }

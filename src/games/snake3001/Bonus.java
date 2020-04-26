@@ -126,31 +126,31 @@ public class Bonus {
 		String path = "images/snake3001/";
 		switch(type){
 		case bGrandis:
-			path+="Grand";
+			path+="expand";
 			break;
 		case bRetrecis:
-			path+="Petit";
+			path+="shrink";
 		break;
 		case bRapide:
-			path+="Lapin";
+			path+="accelerate";
 		break;
 		case bLent:
-			path+="Tortue";
+			path+="decelerate";
 		break;
 		case bMort:
-			path+="Remi";
+			path+="kill";
 		break;
 		case bInverseBonus:
-			path+="InverseBonus";
+			path+="reverseOthers";
 		break;
 		case bInverseMalus:
-			path+="InverseMalus";
+			path+="reverseSelf";
 		break;
 		case bRemis:
-			path+="clown";
+			path+="trap";
 		break;
 		case bInvincible:
-			path+="mouette";
+			path+="boost";
 		break;
 		}
 
