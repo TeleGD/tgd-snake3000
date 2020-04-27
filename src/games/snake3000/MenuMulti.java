@@ -25,7 +25,6 @@ public class MenuMulti extends BasicGameState {
 	private int longueurMenu;
 	private int debutx;
 	private int debuty;
-	private int debutdroiteansx;
 	private TextField nbrJoueurs;
 	private int nJoueur;
 	private int pas;
@@ -54,7 +53,6 @@ public class MenuMulti extends BasicGameState {
 	}
 
 	public void init(GameContainer container, StateBasedGame game) {
-		/* Méthode exécutée une unique fois au chargement du programme */
 		int width = container.getWidth();
 		int height = container.getHeight();
 		longueurJeu=(int)(container.getWidth()*.8);
@@ -63,7 +61,7 @@ public class MenuMulti extends BasicGameState {
 		longueurMenu=container.getWidth()/2;
 		debutx=(longueurJeu-longueurMenu)/2+longueurMenu/15;
 		debuty=(container.getHeight()-hauteurMenu)/2+hauteurMenu/15;
-		debutdroiteansx=(longueurJeu+longueurMenu)/2-longueurMenu/10-longueurMenu/8;
+		int debutdroiteansx=(longueurJeu+longueurMenu)/2-longueurMenu/10-longueurMenu/8;
 		nJoueur=9;
 		pas = container.getHeight()/20;
 		debutNom = longueurJeu/2 - longueurMenu/10;
@@ -101,8 +99,8 @@ public class MenuMulti extends BasicGameState {
 
 			@Override
 			public void onClick(TGDComponent componenent) {
-				startGame((World) game.getState(4));
-				game.enterState(4, new FadeOutTransition(), new FadeInTransition());
+				startGame((World) game.getState(5));
+				game.enterState(5, new FadeOutTransition(), new FadeInTransition());
 			}});
 
 		picker = new ColorPicker(container,debutx,0,width/5,height/4);

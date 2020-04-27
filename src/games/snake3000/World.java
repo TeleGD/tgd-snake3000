@@ -1,5 +1,9 @@
 package games.snake3000;
 
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,6 +30,9 @@ import app.AppFont;
 import app.AppLoader;
 import app.ui.Button;
 import app.ui.TGDComponent;
+
+import games.snake3000.network_tcp.Client;
+import games.snake3000.network_tcp.Server;
 
 public class World extends BasicGameState {
 
@@ -54,10 +61,15 @@ public class World extends BasicGameState {
 	private Audio music;
 	private float musicPos;
 
-	private Button replay,backMenu;
+	// private Button replay;
+	// private Button config;
+	private Button backMenu;
 	private boolean jeuTermine = false;
-	private Button config;
 
+	private boolean isServer = false; // version réseau seulement
+	private String ipAddress; // version réseau seulement
+	private Server server; // version réseau seulement
+	private Client client; // version réseau seulement
 
 	private int ID;
 	private int state;
@@ -75,6 +87,12 @@ public class World extends BasicGameState {
 	@Override
 	public void init(GameContainer container, StateBasedGame game) {
 		/* Méthode exécutée une unique fois au chargement du programme */
+
+		try { // version réseau seulement
+			ipAddress = InetAddress.getLocalHost().getHostAddress();
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
 		this.random = new Random();
 		this.snakes = new ArrayList<Snake>();
 		this.bonuses = new ArrayList<Bonus>();
@@ -150,7 +168,7 @@ public class World extends BasicGameState {
 		}
 
 		// replay.render(container, game, context);
-		config.render(container, game, context);
+		// config.render(container, game, context);
 		backMenu.render(container, game, context);
 	}
 
@@ -163,8 +181,8 @@ public class World extends BasicGameState {
 			game.enterState(2, new FadeOutTransition(), new FadeInTransition());
 		}
 		// replay.update(container, game,delta);
+		// config.update(container,game,delta);
 		backMenu.update(container, game,delta);
-		config.update(container,game,delta);
 		if (!jeuTermine) {
 			Collections.sort(snakes, new Comparator<Snake>() {
 
@@ -185,6 +203,15 @@ public class World extends BasicGameState {
 			jeuTermine = isFini();
 		}
 		if (!jeuTermine) {
+			if (this.server != null) { // version réseau seulement
+				Snake snake = this.findSnakeByIpAdress(ipAddress);
+				String message = snake.getIpAddress() + ";" + snake;
+				server.sendStringToAllClients(message);
+			} else if (this.client != null) { // version réseau seulement
+				Snake snake = this.findSnakeByIpAdress(ipAddress);
+				String message = snake.getIpAddress() + ";" + snake;
+				client.sendString(message);
+			}
 			Random random = this.random;
 			if (random.nextFloat() >= .99f) {
 				bonuses.add(Bonus.createRandomBonus(random));
@@ -258,22 +285,22 @@ public class World extends BasicGameState {
 		//
 		// });
 
-		config = new Button(container,width - widthBandeau+20, height-100,widthBandeau-40,40);
-		config.setText("CONFIGURATION");
-		config.setBackgroundColor(Color.black);
-		config.setBackgroundColorEntered(Color.white);
-		config.setTextColor(Color.white);
-		config.setTextColorEntered(Color.black);
-		config.setCornerRadius(25);
-		config.setOnClickListener(new TGDComponent.OnClickListener() {
-
-			@Override
-			public void onClick(TGDComponent componenent) {
-				World.this.setState(3);
-				game.enterState(3, new FadeOutTransition(), new FadeInTransition());
-			}
-
-		});
+		// config = new Button(container,width - widthBandeau+20, height-100,widthBandeau-40,40);
+		// config.setText("CONFIGURATION");
+		// config.setBackgroundColor(Color.black);
+		// config.setBackgroundColorEntered(Color.white);
+		// config.setTextColor(Color.white);
+		// config.setTextColorEntered(Color.black);
+		// config.setCornerRadius(25);
+		// config.setOnClickListener(new TGDComponent.OnClickListener() {
+		//
+		// 	@Override
+		// 	public void onClick(TGDComponent componenent) {
+		// 		World.this.setState(3);
+		// 		game.enterState(3, new FadeOutTransition(), new FadeInTransition());
+		// 	}
+		//
+		// });
 
 		backMenu = new Button(container,width - widthBandeau+20, height-50,widthBandeau-40,40);
 		backMenu.setText("RETOUR AU MENU");
@@ -331,6 +358,43 @@ public class World extends BasicGameState {
 
 	public void setSnakes(Snake[] snake){
 		this.snakes = new ArrayList<Snake>(Arrays.asList(snake));
+		if(this.server!=null){ // version réseau seulement
+			this.server.addSocketListener(new Client.SocketListener() {
+				@Override
+				public void onMessageSend(Socket socket, String message) {
+
+				}
+
+				@Override
+				public void onMessageReceived(Socket socket, String message) {
+					server.sendStringToAllClients(message);
+
+					String[] split = message.split(";", 2);
+					String ipAddress = split[0];
+					String string = split[1];
+
+					Snake snake = World.this.findSnakeByIpAdress(ipAddress);
+					snake.fromString(string);
+				}
+			});
+		}else if(this.client!=null) { // version réseau seulement
+			this.client.addSocketListener(new Client.SocketListener() {
+				@Override
+				public void onMessageSend(Socket socket, String message) {
+
+				}
+
+				@Override
+				public void onMessageReceived(Socket socket, String message) {
+					String[] split = message.split(";", 2);
+					String ipAddress = split[0];
+					String string = split[1];
+
+					Snake snake = World.this.findSnakeByIpAdress(ipAddress);
+					snake.fromString(string);
+				}
+			});
+		}
 	}
 
 	public Snake[] getSnakes() {
@@ -355,6 +419,45 @@ public class World extends BasicGameState {
 			theShowMustGoOn = true;
 		}
 		return true;
+	}
+
+	private Snake findSnakeByIpAdress(String ipAddress){ // version réseau seulement
+
+		for(int i=0;i<snakes.size();i++){
+			if(snakes.get(i).getIpAddress().equals(ipAddress)){
+				return snakes.get(i);
+			}
+		}
+		return new Snake(Color.white,"default",Input.KEY_LEFT,Input.KEY_RIGHT,0);
+
+	}
+
+	public void toggleServer() { // version réseau seulement
+		this.isServer = !this.isServer;
+	}
+
+	public boolean isServer() { // version réseau seulement
+		return this.isServer;
+	}
+
+	public String getIpAddress() { // version réseau seulement
+		return this.ipAddress;
+	}
+
+	public void setServer(Server server) { // version réseau seulement
+		this.server = server;
+	}
+
+	public Server getServer() { // version réseau seulement
+		return this.server;
+	}
+
+	public void setClient(Client client) { // version réseau seulement
+		this.client = client;
+	}
+
+	public Client getClient() { // version réseau seulement
+		return this.client;
 	}
 
 }

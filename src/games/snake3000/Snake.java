@@ -23,6 +23,7 @@ public class Snake {
 	private int rightKey;
 	private boolean reversed;
 	private List<Point> body;
+	private String ipAddress; // version réseau seulement
 
 	public Snake(Color color, String name, int leftKey, int rightKey, int posX) {
 		this.color = color;
@@ -197,6 +198,10 @@ public class Snake {
 		return this.body.get(0);
 	}
 
+	public void setColor(Color color) { // version réseau seulement
+		this.color = color;
+	}
+
 	public Color getColor() {
 		return this.color;
 	}
@@ -207,6 +212,31 @@ public class Snake {
 
 	public int getScore() {
 		return this.score;
+	}
+
+	public void setIpAddress(String ipAddress) { // version réseau seulement
+		this.ipAddress = ipAddress;
+	}
+
+	public String getIpAddress() { // version réseau seulement
+		return this.ipAddress;
+	}
+
+	public void fromString(String string) { // version réseau seulement
+		String[] splits = string.split(";");
+		List<Point> body = new ArrayList<Point>();
+		for(int i = 0, li = splits.length; i < li; i += 2) {
+			body.add(new Point(Integer.parseInt(splits[i]), Integer.parseInt(splits[i + 1])));
+		}
+		this.body = body;
+	}
+
+	public String toString() { // version réseau seulement
+		String string = "";
+		for (Point point: this.body) {
+			string += point.getX() + ";" + point.getY() + ";";
+		}
+		return string;
 	}
 
 }

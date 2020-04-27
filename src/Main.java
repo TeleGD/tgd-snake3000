@@ -53,8 +53,8 @@ public final class Main {
 				this.addState(new pages.Choice(1));
 				this.addState(new pages.Pause(2));
 				this.addState(new games.snake3000.MenuMulti(3));
-				this.addState(new games.snake3000.World(4));
-				this.addState(new games.snake3001.World(5));
+				this.addState(new games.snake3000.MenuMultiNetwork(4));
+				this.addState(new games.snake3000.World(5));
 			}
 
 		};

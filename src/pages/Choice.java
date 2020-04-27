@@ -30,7 +30,7 @@ public class Choice extends AppMenu {
 			},
 			new MenuItem("Snake3001 (Reseau)") {
 				public void itemSelected() {
-					game.enterState(5, new FadeOutTransition(), new FadeInTransition());
+					game.enterState(4, new FadeOutTransition(), new FadeInTransition());
 				}
 			},
 			new MenuItem("Retour") {
