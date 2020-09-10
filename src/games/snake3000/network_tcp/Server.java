@@ -1,4 +1,4 @@
-package games.snake3001.network_tcp;
+package games.snake3000.network_tcp;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -9,7 +9,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
-public class Serveur extends Thread implements Runnable{
+public class Server extends Thread implements Runnable{
 
 	private volatile boolean isActive;
 	private int port;
@@ -18,7 +18,7 @@ public class Serveur extends Thread implements Runnable{
 	private Client.SocketListener socketListener;
 	private OnClientConnectedListener onClientConnectedListener;
 
-	public Serveur(int port){
+	public Server(int port){
 		this.port = port;
 	}
 

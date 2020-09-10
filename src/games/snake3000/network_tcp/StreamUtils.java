@@ -1,4 +1,4 @@
-package games.snake3001.network_tcp;
+package games.snake3000.network_tcp;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

@@ -1,9 +1,9 @@
-package games.snake3001.network_tcp;
+package games.snake3000.network_tcp;
 
 import java.net.Socket;
 
 public class MainTest implements Client.SocketListener {
-	private Serveur serveur;
+	private Server server;
 	private Client client;
 
 	private MainTest(){
@@ -12,10 +12,10 @@ public class MainTest implements Client.SocketListener {
 		//new DiscoverServerThread(2000,20).start(); //Lance le thread pour que les clients auto-détectent ce serveur
 		//on lance le serveur TCP sur le port 8887
 		/*
-		serveur = new Serveur(8887);
-		serveur.addSocketListener(this); //informe qu'on va recevoir les messages dans les methodes plus bas
-		serveur.start();
-		serveur.addSocketListener(new Client.SocketListener(){
+		server = new Server(8887);
+		server.addSocketListener(this); //informe qu'on va recevoir les messages dans les methodes plus bas
+		server.start();
+		server.addSocketListener(new Client.SocketListener(){
 
 			@Override
 			public void onMessageSend(Socket socket, String message) {
@@ -34,15 +34,15 @@ public class MainTest implements Client.SocketListener {
 		 *
 		 * => Une fois la connexion etablit avec un client ou plusieurs:
 		 *
-		 * -  serveur.sendStringToAllClients(messageToSend); //pour envoyer un message a tout le monde
-		 * -  serveur.sendStringToClient(socket, messageToSend) // pour envoyer un message a un client en particulier
-		 * -  serveur.getSockets() //Retourne les sockets des clients actuellement connectés
-		 * -  serveur.getNbClientsConnected() //Retourne le nombre de clients connecte
+		 * -  server.sendStringToAllClients(messageToSend); //pour envoyer un message a tout le monde
+		 * -  server.sendStringToClient(socket, messageToSend) // pour envoyer un message a un client en particulier
+		 * -  server.getSockets() //Retourne les sockets des clients actuellement connectés
+		 * -  server.getNbClientsConnected() //Retourne le nombre de clients connecte
 		 *
 		 * => Les listeners, pour etre notifier:
 		 *
-		 * -  serveur.addOnClientConnectedListener(OnClientConnectedListener onClientConnectedListener);  // quand un client se connecte ou se deconnecte
-		 * -  serveur.addSocketListener(SocketListener socketListener); // quand on recoit ou on emet un message
+		 * -  server.addOnClientConnectedListener(OnClientConnectedListener onClientConnectedListener);  // quand un client se connecte ou se deconnecte
+		 * -  server.addSocketListener(SocketListener socketListener); // quand on recoit ou on emet un message
 		 */
 
 		//A LANCER SUR UN ORDI CLIENT
@@ -65,11 +65,11 @@ public class MainTest implements Client.SocketListener {
 		 *
 		 * => Une fois la connexion etablit avec un client ou plusieurs:
 		 *
-		 * -  serveur.sendString(messageToSend); //pour envoyer un message au serveur
+		 * -  server.sendString(messageToSend); //pour envoyer un message au serveur
 		 *
 		 * => Les listeners, pour etre notifier:
 		 *
-		 * -  serveur.addSocketListener(SocketListener socketListener); // quand on recoit ou on emet un message
+		 * -  server.addSocketListener(SocketListener socketListener); // quand on recoit ou on emet un message
 		 */
 
 	}

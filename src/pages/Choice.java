@@ -23,14 +23,14 @@ public class Choice extends AppMenu {
 		this.setTitle("Choix");
 		this.setSubtitle("Sans sous-titre");
 		this.setMenu(Arrays.asList(new MenuItem[] {
-			new MenuItem("Snake3000") {
+			new MenuItem("Snake3000 (Local)") {
 				public void itemSelected() {
 					game.enterState(3, new FadeOutTransition(), new FadeInTransition());
 				}
 			},
-			new MenuItem("Snake3001 (Reseau)") {
+			new MenuItem("Snake3000 (Reseau)") {
 				public void itemSelected() {
-					game.enterState(5, new FadeOutTransition(), new FadeInTransition());
+					game.enterState(4, new FadeOutTransition(), new FadeInTransition());
 				}
 			},
 			new MenuItem("Retour") {
