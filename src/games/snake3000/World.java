@@ -62,11 +62,11 @@ public class World extends BasicGameState {
 	private float musicPos;
 
 	// private Button replay;
-	// private Button config;
+	private Button config; // version locale seulement
 	private Button backMenu;
-	private boolean jeuTermine = false;
+	private boolean jeuTermine;
 
-	private boolean isServer = false; // version réseau seulement
+	private boolean isClient; // version réseau seulement
 	private String ipAddress; // version réseau seulement
 	private Server server; // version réseau seulement
 	private Client client; // version réseau seulement
@@ -166,9 +166,10 @@ public class World extends BasicGameState {
 			context.setColor(snake.getColor());
 			context.drawString(snake.getName() + " : " + snake.getScore(), width - widthBandeau + 20, 100 + 50 * i + 20);
 		}
-
 		// replay.render(container, game, context);
-		// config.render(container, game, context);
+		if (this.getServer() == null && this.getClient() == null) { // version locale seulement
+			config.render(container, game, context);
+		}
 		backMenu.render(container, game, context);
 	}
 
@@ -181,7 +182,9 @@ public class World extends BasicGameState {
 			game.enterState(2, new FadeOutTransition(), new FadeInTransition());
 		}
 		// replay.update(container, game,delta);
-		// config.update(container,game,delta);
+		if (this.getServer() == null && this.getClient() == null) { // version locale seulement
+			config.update(container,game,delta);
+		}
 		backMenu.update(container, game,delta);
 		if (!jeuTermine) {
 			Collections.sort(snakes, new Comparator<Snake>() {
@@ -285,22 +288,24 @@ public class World extends BasicGameState {
 		//
 		// });
 
-		// config = new Button(container,width - widthBandeau+20, height-100,widthBandeau-40,40);
-		// config.setText("CONFIGURATION");
-		// config.setBackgroundColor(Color.black);
-		// config.setBackgroundColorEntered(Color.white);
-		// config.setTextColor(Color.white);
-		// config.setTextColorEntered(Color.black);
-		// config.setCornerRadius(25);
-		// config.setOnClickListener(new TGDComponent.OnClickListener() {
-		//
-		// 	@Override
-		// 	public void onClick(TGDComponent componenent) {
-		// 		World.this.setState(3);
-		// 		game.enterState(3, new FadeOutTransition(), new FadeInTransition());
-		// 	}
-		//
-		// });
+		if (this.getServer() == null && this.getClient() == null) { // version locale seulement
+			config = new Button(container,width - widthBandeau+20, height-100,widthBandeau-40,40);
+			config.setText("CONFIGURATION");
+			config.setBackgroundColor(Color.black);
+			config.setBackgroundColorEntered(Color.white);
+			config.setTextColor(Color.white);
+			config.setTextColorEntered(Color.black);
+			config.setCornerRadius(25);
+			config.setOnClickListener(new TGDComponent.OnClickListener() {
+
+				@Override
+				public void onClick(TGDComponent componenent) {
+					World.this.setState(3);
+					game.enterState(3, new FadeOutTransition(), new FadeInTransition());
+				}
+
+			});
+		}
 
 		backMenu = new Button(container,width - widthBandeau+20, height-50,widthBandeau-40,40);
 		backMenu.setText("RETOUR AU MENU");
@@ -432,12 +437,12 @@ public class World extends BasicGameState {
 
 	}
 
-	public void toggleServer() { // version réseau seulement
-		this.isServer = !this.isServer;
+	public boolean isClient() { // version réseau seulement
+		return this.isClient;
 	}
 
-	public boolean isServer() { // version réseau seulement
-		return this.isServer;
+	public void toggleClient() { // version réseau seulement
+		this.isClient = !this.isClient;
 	}
 
 	public String getIpAddress() { // version réseau seulement

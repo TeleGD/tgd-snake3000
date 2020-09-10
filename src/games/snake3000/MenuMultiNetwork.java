@@ -125,8 +125,7 @@ public class MenuMultiNetwork extends BasicGameState implements Client.SocketLis
 		Input input = container.getInput();
 		if(input.isKeyPressed(Input.KEY_S)){
 
-			if(world.isServer() ==false){
-				world.toggleServer();
+			if(world.getServer() == null){
 
 				discoverServerThread = new DiscoverServerThread(5000,15);
 				discoverServerThread.start();
@@ -152,19 +151,24 @@ public class MenuMultiNetwork extends BasicGameState implements Client.SocketLis
 
 		}else if(input.isKeyPressed(Input.KEY_C)){
 
-			DiscoveryThread thread = new DiscoveryThread();
-			thread.addOnServerDetectedListener(new DiscoveryThread.OnServerDetectedListener() {
-				@Override
-				public void onServerDetected(String ipAddress) {
-					addClient(world, ipAddress);
-				}
-			});
-			thread.start();
+			if(!world.isClient()){
 
-			//addClient("localhost");
+				world.toggleClient();
+
+				DiscoveryThread thread = new DiscoveryThread();
+				thread.addOnServerDetectedListener(new DiscoveryThread.OnServerDetectedListener() {
+					@Override
+					public void onServerDetected(String ipAddress) {
+						addClient(world, ipAddress);
+					}
+				});
+				thread.start();
+
+				//addClient("localhost");
+			}
 
 		}
-		if(world.isServer()){
+		if(world.getServer() != null){
 			boutonStart.update(container, game, delta);
 		}
 		nomJoueursField.update(container, game, delta);
@@ -248,7 +252,7 @@ public class MenuMultiNetwork extends BasicGameState implements Client.SocketLis
 			nomJoueursField.render(container, game, g);
 			choixCouleur.render(container, game, g);
 
-			if(world.isServer()){
+			if(world.getServer() != null){
 				boutonStart.render(container, game, g);
 			}
 	}
