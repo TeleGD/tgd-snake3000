@@ -169,7 +169,9 @@ public class MenuMultiNetwork extends BasicGameState implements Client.SocketLis
 		}
 		nomJoueursField.update(container, game, delta);
 		choixCouleur.update(container, game, delta);
-		for (String message: this.messages) { // IDEA: vérifier qu'on n'accède jamais de manière concurrente à cette liste pendant cette boucle
+		List<String> messages = this.messages;
+		this.messages = new ArrayList<String>();
+		for (String message: messages) {
 			if(message.equals("get_connected_players")){
 
 				message = "received_connected_players;"+snakes.size()+";";
@@ -220,9 +222,7 @@ public class MenuMultiNetwork extends BasicGameState implements Client.SocketLis
 				world.setSnakes(snakes.toArray(new Snake[snakes.size()]));
 				game.enterState(5, new FadeOutTransition(), new FadeInTransition());
 			}
-			this.messages.clear();
 		}
-
 	}
 
 	public void render(GameContainer container, StateBasedGame game, Graphics g) {

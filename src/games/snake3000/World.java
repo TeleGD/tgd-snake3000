@@ -204,11 +204,11 @@ public class World extends BasicGameState {
 		}
 		if (!jeuTermine) {
 			if (this.server != null) { // version réseau seulement
-				Snake snake = this.findSnakeByIpAdress(ipAddress);
+				Snake snake = this.findSnakeByIpAddress(ipAddress);
 				String message = snake.getIpAddress() + ";" + snake;
 				server.sendStringToAllClients(message);
 			} else if (this.client != null) { // version réseau seulement
-				Snake snake = this.findSnakeByIpAdress(ipAddress);
+				Snake snake = this.findSnakeByIpAddress(ipAddress);
 				String message = snake.getIpAddress() + ";" + snake;
 				client.sendString(message);
 			}
@@ -373,7 +373,7 @@ public class World extends BasicGameState {
 					String ipAddress = split[0];
 					String string = split[1];
 
-					Snake snake = World.this.findSnakeByIpAdress(ipAddress);
+					Snake snake = World.this.findSnakeByIpAddress(ipAddress);
 					snake.fromString(string);
 				}
 			});
@@ -390,7 +390,7 @@ public class World extends BasicGameState {
 					String ipAddress = split[0];
 					String string = split[1];
 
-					Snake snake = World.this.findSnakeByIpAdress(ipAddress);
+					Snake snake = World.this.findSnakeByIpAddress(ipAddress);
 					snake.fromString(string);
 				}
 			});
@@ -421,7 +421,7 @@ public class World extends BasicGameState {
 		return true;
 	}
 
-	private Snake findSnakeByIpAdress(String ipAddress){ // version réseau seulement
+	private Snake findSnakeByIpAddress(String ipAddress){ // version réseau seulement
 
 		for(int i=0;i<snakes.size();i++){
 			if(snakes.get(i).getIpAddress().equals(ipAddress)){
