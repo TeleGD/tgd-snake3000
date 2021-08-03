@@ -1,9 +1,9 @@
 package games.snake3000;
 
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
@@ -20,12 +20,10 @@ import app.ui.TextField;
 import app.ui.TGDComponent;
 import app.ui.TGDComponent.OnClickListener;
 
-import games.snake3000.network_tcp.Client;
-import games.snake3000.network_tcp.DiscoverServerThread;
-import games.snake3000.network_tcp.DiscoveryThread;
-import games.snake3000.network_tcp.Server;
+import games.snake3000.network.Packet;
+import games.snake3000.network.Peer;
 
-public class MenuMultiNetwork extends BasicGameState implements Client.SocketListener {
+public class MenuMultiNetwork extends BasicGameState {
 
 	private int longueurJeu;
 	private int hauteurMenu;
@@ -36,14 +34,14 @@ public class MenuMultiNetwork extends BasicGameState implements Client.SocketLis
 	private int pas;
 	private Button boutonStart;
 	private ColorPicker picker;
-	private boolean affPicker=false;
 
-	private DiscoverServerThread discoverServerThread;private TextField nomJoueursField;
+	private TextField nomJoueursField;
 	private Button choixCouleur;
 
-	private ArrayList<Snake> snakes =new ArrayList<>();
+	private List<Snake> snakes;
 
-	private List<String> messages = new ArrayList<String>();
+	private Peer peer;
+	private BlockingQueue<String> queue;
 
 	private int ID;
 
@@ -57,8 +55,11 @@ public class MenuMultiNetwork extends BasicGameState implements Client.SocketLis
 	}
 
 	public void init(GameContainer container, StateBasedGame game) {
-		World world = (World) game.getState(5);
-		final Snake snake = findSnakeByIpAddress(world.getIpAddress());
+		Snake snake = new Snake(Color.white,"",Input.KEY_LEFT,Input.KEY_RIGHT,0);
+		snakes = new ArrayList<Snake>();
+		snakes.add(snake);
+		this.peer = null;
+		this.queue = new LinkedBlockingQueue<String>();
 
 		int width = container.getWidth();
 		int height = container.getHeight();
@@ -86,12 +87,12 @@ public class MenuMultiNetwork extends BasicGameState implements Client.SocketLis
 
 			@Override
 			public void onClick(TGDComponent componenent) {
-				world.getServer().sendStringToAllClients("demarrer");
-				world.setSnakes(snakes.toArray(new Snake[snakes.size()]));
+				MenuMultiNetwork.this.pushToPeer("");
 				game.enterState(5, new FadeOutTransition(), new FadeInTransition());
 			}});
 
 		picker = new ColorPicker(container,debutx,0,width/5,height/4);
+		picker.setVisible(false);
 
 		choixCouleur = new Button(container,longueurJeu/2+longueurMenu/4,yn,hauteurMenu/15,hauteurMenu/15);
 		choixCouleur.setBackgroundColor(snake.getColor());
@@ -121,116 +122,19 @@ public class MenuMultiNetwork extends BasicGameState implements Client.SocketLis
 	}
 
 	public void update(GameContainer container, StateBasedGame game, int delta) {
-		World world = (World) game.getState(5);
 		Input input = container.getInput();
-		if(input.isKeyPressed(Input.KEY_S)){
-
-			if(world.getServer() == null){
-
-				discoverServerThread = new DiscoverServerThread(5000,15);
-				discoverServerThread.start();
-
-				snakes.add(new Snake(choixCouleur.getBackgroundColor(),nomJoueursField.getText(),Input.KEY_LEFT,Input.KEY_RIGHT,0));
-				snakes.get(snakes.size()-1).setIpAddress(world.getIpAddress());
-
-				world.setServer(new Server(8887));
-				world.getServer().addOnClientConnectedListener(new Server.OnClientConnectedListener() {
-					@Override
-					public void onConnected(Socket socket) {
-
-					}
-
-					@Override
-					public void onDisconnected(Socket socket) {
-
-					}
-				});
-				world.getServer().addSocketListener(this);
-				world.getServer().start();
-			}
-
-		}else if(input.isKeyPressed(Input.KEY_C)){
-
-			if(!world.isClient()){
-
-				world.toggleClient();
-
-				DiscoveryThread thread = new DiscoveryThread();
-				thread.addOnServerDetectedListener(new DiscoveryThread.OnServerDetectedListener() {
-					@Override
-					public void onServerDetected(String ipAddress) {
-						addClient(world, ipAddress);
-					}
-				});
-				thread.start();
-
-				//addClient("localhost");
-			}
-
+		if (input.isKeyDown(Input.KEY_ESCAPE)) {
+			game.enterState(1, new FadeOutTransition(), new FadeInTransition());
 		}
-		if(world.getServer() != null){
+		if (this.peer != null) { // TODO: vérifier que l'on est en mode serveur et qu'on a bien au moins un joueur
 			boutonStart.update(container, game, delta);
 		}
+		picker.update(container, game, delta);
 		nomJoueursField.update(container, game, delta);
 		choixCouleur.update(container, game, delta);
-		List<String> messages = this.messages;
-		this.messages = new ArrayList<String>();
-		for (String message: messages) {
-			if(message.equals("get_connected_players")){
-
-				message = "received_connected_players;"+snakes.size()+";";
-				for(int i=0;i<snakes.size();i++){
-					message += snakes.get(i).getName()+";"+snakes.get(i).getIpAddress()+";"+snakes.get(i).getColor().getRed()+";"+snakes.get(i).getColor().getGreen()+";"+snakes.get(i).getColor().getBlue()+";"+snakes.get(i).getColor().getAlpha()+";";
-				}
-
-				world.getServer().sendStringToAllClients(message);
-
-			}else if(message.startsWith("received_connected_players")){
-
-				//client
-
-				String split[] = message.split(Pattern.quote(";"));
-
-				nJoueur = Integer.parseInt(split[1]);
-				snakes.removeAll(snakes);
-
-				for(int i=0;i<nJoueur;i++){
-					String nom =split[2+6*i];
-					String adresse =split[2+6*i+1];
-					int r = Integer.parseInt(split[2+6*i+2]);
-					int g = Integer.parseInt(split[2+6*i+3]);
-					int b = Integer.parseInt(split[2+6*i+4]);
-					int a = Integer.parseInt(split[2+6*i+5]);
-					Color c = new Color(r,g,b,a);
-					Snake s = new Snake(c,nom,Input.KEY_LEFT,Input.KEY_RIGHT,12+12*i);
-					s.setIpAddress(adresse);
-					snakes.add(s);
-				}
-			}else if(message.startsWith("add_joueur")){
-
-				String[] split = message.split(Pattern.quote(";"));
-				String adresse =split[1];
-				String nom =split[2];
-				int r = Integer.parseInt(split[3]);
-				int g = Integer.parseInt(split[4]);
-				int b = Integer.parseInt(split[5]);
-				int a = Integer.parseInt(split[6]);
-				Color c = new Color(r,g,b,a);
-
-				//int xinit =(100-nJoueur)/(nJoueur+1) + *((100-nJoueur)/(nJoueur+1)+1);
-
-				snakes.add(new Snake(c,nom,Input.KEY_RIGHT,Input.KEY_LEFT,snakes.size()*12+12));
-				snakes.get(snakes.size()-1).setIpAddress(adresse);
-
-			}else if(message.startsWith("demarrer")){
-				world.setSnakes(snakes.toArray(new Snake[snakes.size()]));
-				game.enterState(5, new FadeOutTransition(), new FadeInTransition());
-			}
-		}
 	}
 
 	public void render(GameContainer container, StateBasedGame game, Graphics g) {
-		World world = (World) game.getState(5);
 			int height = container.getHeight();
 			g.setColor(new Color(0,0,255));
 			g.fillRect((longueurJeu-longueurMenu)/2, (height-hauteurMenu)/2, longueurMenu, hauteurMenu);
@@ -244,52 +148,24 @@ public class MenuMultiNetwork extends BasicGameState implements Client.SocketLis
 				g.drawString("Nom Joueur n "+i+" : "+snakes.get(i).getName(),debutx,yn+35);
 
 			}
-
-			if (affPicker) {
-				picker.render(container, game, g);
-			}
-
-			nomJoueursField.render(container, game, g);
-			choixCouleur.render(container, game, g);
-
-			if(world.getServer() != null){
+			if (this.peer != null) { // TODO: vérifier que l'on est en mode serveur et qu'on a bien au moins un joueur
 				boutonStart.render(container, game, g);
 			}
+			picker.render(container, game, g);
+			nomJoueursField.render(container, game, g);
+			choixCouleur.render(container, game, g);
 	}
 
-	private void addClient(World world, String ipAddress) {
-		world.setClient(new Client(ipAddress,8887));
-
-		String message = "add_joueur;";
-		message += ipAddress+";";
-
-		Color c = choixCouleur.getBackgroundColor();
-		message += nomJoueursField.getText()+";"+c.getRed()+";"+c.getGreen()+";"+c.getBlue()+";"+c.getAlpha();
-
-		world.getClient().sendString(message);
-		world.getClient().sendString("get_connected_players");
-		world.getClient().addSocketListener(this);
-	}
-
-	@Override
-	public void onMessageSend(Socket socket, String message) {
-		System.out.println("message send= "+message);
-	}
-
-	@Override
-	public void onMessageReceived(Socket socket, String message) {
-		System.out.println("message received= "+message);
-		this.messages.add(message);
-	}
-
-	private Snake findSnakeByIpAddress(String ipAddress){
-
-		for(int i=0;i<snakes.size();i++){
-			if(snakes.get(i).getIpAddress().equals(ipAddress)){
-				return snakes.get(i);
-			}
+	private void pushToPeer(String message) { // version réseau seulement
+		if (this.peer == null) {
+			return;
 		}
-		return new Snake(Color.white,"default",Input.KEY_LEFT,Input.KEY_RIGHT,0);
+		this.peer.pullFromMenu(message);
+	}
+
+	public void pullFromPeer(Packet packet) { // version réseau seulement
+		String message = packet.getMessage();
+		this.queue.offer(message);
 	}
 
 }

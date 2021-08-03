@@ -1,9 +1,9 @@
 package games.snake3000;
 
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
-
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Font;
@@ -31,8 +33,8 @@ import app.AppLoader;
 import app.ui.Button;
 import app.ui.TGDComponent;
 
-import games.snake3000.network_tcp.Client;
-import games.snake3000.network_tcp.Server;
+import games.snake3000.network.Packet;
+import games.snake3000.network.Peer;
 
 public class World extends BasicGameState {
 
@@ -66,10 +68,8 @@ public class World extends BasicGameState {
 	private Button backMenu;
 	private boolean jeuTermine;
 
-	private boolean isClient; // version réseau seulement
-	private String ipAddress; // version réseau seulement
-	private Server server; // version réseau seulement
-	private Client client; // version réseau seulement
+	private Peer peer; // version réseau seulement
+	private BlockingQueue<String> queue; // version réseau seulement
 
 	private int ID;
 	private int state;
@@ -87,12 +87,6 @@ public class World extends BasicGameState {
 	@Override
 	public void init(GameContainer container, StateBasedGame game) {
 		/* Méthode exécutée une unique fois au chargement du programme */
-
-		try { // version réseau seulement
-			ipAddress = InetAddress.getLocalHost().getHostAddress();
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}
 		this.random = new Random();
 		this.snakes = new ArrayList<Snake>();
 		this.bonuses = new ArrayList<Bonus>();
@@ -167,7 +161,7 @@ public class World extends BasicGameState {
 			context.drawString(snake.getName() + " : " + snake.getScore(), width - widthBandeau + 20, 100 + 50 * i + 20);
 		}
 		// replay.render(container, game, context);
-		if (this.getServer() == null && this.getClient() == null) { // version locale seulement
+		if (this.peer == null) { // version locale seulement
 			config.render(container, game, context);
 		}
 		backMenu.render(container, game, context);
@@ -182,7 +176,7 @@ public class World extends BasicGameState {
 			game.enterState(2, new FadeOutTransition(), new FadeInTransition());
 		}
 		// replay.update(container, game,delta);
-		if (this.getServer() == null && this.getClient() == null) { // version locale seulement
+		if (this.peer == null) { // version locale seulement
 			config.update(container,game,delta);
 		}
 		backMenu.update(container, game,delta);
@@ -206,14 +200,8 @@ public class World extends BasicGameState {
 			jeuTermine = isFini();
 		}
 		if (!jeuTermine) {
-			if (this.server != null) { // version réseau seulement
-				Snake snake = this.findSnakeByIpAddress(ipAddress);
-				String message = snake.getIpAddress() + ";" + snake;
-				server.sendStringToAllClients(message);
-			} else if (this.client != null) { // version réseau seulement
-				Snake snake = this.findSnakeByIpAddress(ipAddress);
-				String message = snake.getIpAddress() + ";" + snake;
-				client.sendString(message);
+			if (this.peer != null) { // version réseau seulement
+				this.pushToPeer("");
 			}
 			Random random = this.random;
 			if (random.nextFloat() >= .99f) {
@@ -231,20 +219,18 @@ public class World extends BasicGameState {
 			Set<Snake> snakesToKill = new HashSet<Snake>();
 			for (Bonus bonus: bonuses) {
 				for (Snake snake: snakes) {
-					if (!bonus.contains(snake.getHead())) {
-						continue;
+					if (bonus.contains(snake.getHead())) {
+						bonusesToApply.put(bonus, snake);
+						break;
 					}
-					bonusesToApply.put(bonus, snake);
-					break;
 				}
 			}
 			for (Snake snake: snakes) {
 				for (Snake otherSnake: snakes) {
-					if (otherSnake == snake || !otherSnake.contains(snake.getHead())) {
-						continue;
+					if (otherSnake != snake && otherSnake.contains(snake.getHead())) {
+						snakesToKill.add(snake);
+						break;
 					}
-					snakesToKill.add(snake);
-					break;
 				}
 			}
 			for (Map.Entry<Bonus, Snake> entry: bonusesToApply.entrySet()) {
@@ -262,7 +248,9 @@ public class World extends BasicGameState {
 		container.getInput().clearKeyPressedRecord();
 		this.bonuses.clear();
 		this.jeuTermine = false;
-
+		// TODO: initialiser peer et queue
+		this.peer = null;
+		this.queue = new LinkedBlockingQueue<String>();
 
 		int width = container.getWidth();
 		int height = container.getHeight();
@@ -288,7 +276,7 @@ public class World extends BasicGameState {
 		//
 		// });
 
-		if (this.getServer() == null && this.getClient() == null) { // version locale seulement
+		if (this.peer == null) { // version locale seulement
 			config = new Button(container,width - widthBandeau+20, height-100,widthBandeau-40,40);
 			config.setText("CONFIGURATION");
 			config.setBackgroundColor(Color.black);
@@ -361,45 +349,8 @@ public class World extends BasicGameState {
 		this.bonuses.remove(bonus);
 	}
 
-	public void setSnakes(Snake[] snake){
-		this.snakes = new ArrayList<Snake>(Arrays.asList(snake));
-		if(this.server!=null){ // version réseau seulement
-			this.server.addSocketListener(new Client.SocketListener() {
-				@Override
-				public void onMessageSend(Socket socket, String message) {
-
-				}
-
-				@Override
-				public void onMessageReceived(Socket socket, String message) {
-					server.sendStringToAllClients(message);
-
-					String[] split = message.split(";", 2);
-					String ipAddress = split[0];
-					String string = split[1];
-
-					Snake snake = World.this.findSnakeByIpAddress(ipAddress);
-					snake.fromString(string);
-				}
-			});
-		}else if(this.client!=null) { // version réseau seulement
-			this.client.addSocketListener(new Client.SocketListener() {
-				@Override
-				public void onMessageSend(Socket socket, String message) {
-
-				}
-
-				@Override
-				public void onMessageReceived(Socket socket, String message) {
-					String[] split = message.split(";", 2);
-					String ipAddress = split[0];
-					String string = split[1];
-
-					Snake snake = World.this.findSnakeByIpAddress(ipAddress);
-					snake.fromString(string);
-				}
-			});
-		}
+	public void setSnakes(Snake[] snakes) {
+		this.snakes = new ArrayList<Snake>(Arrays.asList(snakes));
 	}
 
 	public Snake[] getSnakes() {
@@ -426,43 +377,58 @@ public class World extends BasicGameState {
 		return true;
 	}
 
-	private Snake findSnakeByIpAddress(String ipAddress){ // version réseau seulement
-
-		for(int i=0;i<snakes.size();i++){
-			if(snakes.get(i).getIpAddress().equals(ipAddress)){
-				return snakes.get(i);
-			}
+	public void fromString(String string) { // version réseau seulement
+		if (string.length() != 0 && !string.endsWith("\n")) {
+			string += "\n";
 		}
-		return new Snake(Color.white,"default",Input.KEY_LEFT,Input.KEY_RIGHT,0);
-
+		try {
+			BufferedReader reader = new BufferedReader(new StringReader(string));
+			String line1;
+			List<Bonus> bonuses = new ArrayList<Bonus>();
+			while ((line1 = reader.readLine()) != null && !line1.equals("")) {
+				((Bonus) null).fromString(line1.substring(1).replaceAll(";", "\n"));
+				bonuses.add(null);
+			}
+			// this.bonuses.clear();
+			// this.bonuses.addAll(bonuses);
+			List<Snake> snakes = new ArrayList<Snake>();
+			while ((line1 = reader.readLine()) != null) {
+				((Snake) null).fromString(line1.substring(1).replaceAll(";", "\n"));
+				snakes.add(null);
+			}
+			// this.snakes.clear();
+			// this.snakes.addAll(snakes);
+			reader.close();
+		} catch (Exception error) {}
 	}
 
-	public boolean isClient() { // version réseau seulement
-		return this.isClient;
+	public String toString() { // version réseau seulement
+		String string = "";
+		try {
+			BufferedWriter writer = new BufferedWriter(new StringWriter());
+			for (Bonus bonus: this.bonuses) {
+				writer.write("\t" + bonus.toString().replaceAll("\n", ";") + "\n");
+			}
+			writer.write("\n");
+			for (Snake snake: this.snakes) {
+				writer.write("\t" + snake.toString().replaceAll("\n", ";") + "\n");
+			}
+			string = writer.toString();
+			writer.close();
+		} catch (Exception error) {}
+		return string;
 	}
 
-	public void toggleClient() { // version réseau seulement
-		this.isClient = !this.isClient;
+	private void pushToPeer(String message) { // version réseau seulement
+		if (this.peer == null) {
+			return;
+		}
+		this.peer.pullFromWorld(message);
 	}
 
-	public String getIpAddress() { // version réseau seulement
-		return this.ipAddress;
-	}
-
-	public void setServer(Server server) { // version réseau seulement
-		this.server = server;
-	}
-
-	public Server getServer() { // version réseau seulement
-		return this.server;
-	}
-
-	public void setClient(Client client) { // version réseau seulement
-		this.client = client;
-	}
-
-	public Client getClient() { // version réseau seulement
-		return this.client;
+	public void pullFromPeer(Packet packet) { // version réseau seulement
+		String message = packet.getMessage();
+		this.queue.offer(message);
 	}
 
 }

@@ -1,5 +1,9 @@
 package games.snake3000;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.Random;
 
 import org.newdawn.slick.GameContainer;
@@ -64,6 +68,7 @@ public class Bonus {
 		this.dirX = 0;
 		this.dirY = 0;
 		this.timer = 0;
+		this.consumed = false;
 		this.image = AppLoader.loadPicture("/images/snake3000/" + type + ".png");
 		this.sound = AppLoader.loadAudio("/sounds/snake3000/" + type + ".ogg");
 	}
@@ -238,6 +243,55 @@ public class Bonus {
 
 	private int getSize() {
 		return this.big ? 7 : 3;
+	}
+
+	public void fromString(String string) { // version réseau seulement
+		if (string.length() != 0 && !string.endsWith("\n")) {
+			string += "\n";
+		}
+		try {
+			BufferedReader reader = new BufferedReader(new StringReader(string));
+			String line1;
+			if ((line1 = reader.readLine()) != null) {
+				this.type = BonusType.values()[Integer.parseInt(line1)];
+			}
+			if ((line1 = reader.readLine()) != null) {
+				this.big = Boolean.parseBoolean(line1);
+			}
+			if ((line1 = reader.readLine()) != null) {
+				this.posX = Integer.parseInt(line1); // TODO: synchroniser
+			}
+			if ((line1 = reader.readLine()) != null) {
+				this.posY = Integer.parseInt(line1); // TODO: synchroniser
+			}
+			if ((line1 = reader.readLine()) != null) {
+				this.dirX = Integer.parseInt(line1); // TODO: synchroniser
+			}
+			if ((line1 = reader.readLine()) != null) {
+				this.dirY = Integer.parseInt(line1); // TODO: synchroniser
+			}
+			if ((line1 = reader.readLine()) != null) {
+				this.consumed = Boolean.parseBoolean(line1);
+			}
+			reader.close();
+		} catch (Exception error) {}
+	}
+
+	public String toString() { // version réseau seulement
+		String string = "";
+		try {
+			BufferedWriter writer = new BufferedWriter(new StringWriter());
+			writer.write(Integer.toString(this.type.ordinal()) + "\n");
+			writer.write(Boolean.toString(this.big) + "\n");
+			writer.write(Integer.toString(this.posX) + "\n");
+			writer.write(Integer.toString(this.posY) + "\n");
+			writer.write(Integer.toString(this.dirX) + "\n");
+			writer.write(Integer.toString(this.dirY) + "\n");
+			writer.write(Boolean.toString(this.consumed) + "\n");
+			string = writer.toString();
+			writer.close();
+		} catch (Exception error) {}
+		return string;
 	}
 
 }

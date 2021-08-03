@@ -1,5 +1,10 @@
 package games.snake3000;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +28,8 @@ public class Snake {
 	private int rightKey;
 	private boolean reversed;
 	private List<Point> body;
-	private String ipAddress; // version réseau seulement
+	private InetAddress address; // version réseau seulement
+	private int port; // version réseau seulement
 
 	public Snake(Color color, String name, int leftKey, int rightKey, int posX) {
 		this.color = color;
@@ -214,28 +220,74 @@ public class Snake {
 		return this.score;
 	}
 
-	public void setIpAddress(String ipAddress) { // version réseau seulement
-		this.ipAddress = ipAddress;
+	public void setAddress(InetAddress address) { // version réseau seulement
+		this.address = address;
 	}
 
-	public String getIpAddress() { // version réseau seulement
-		return this.ipAddress;
+	public InetAddress getAddress() { // version réseau seulement
+		return this.address;
+	}
+
+	public void setPort(int port) { // version réseau seulement
+		this.port = port;
+	}
+
+	public int getPort() { // version réseau seulement
+		return this.port;
 	}
 
 	public void fromString(String string) { // version réseau seulement
-		String[] splits = string.split(";");
-		List<Point> body = new ArrayList<Point>();
-		for(int i = 0, li = splits.length; i < li; i += 2) {
-			body.add(new Point(Integer.parseInt(splits[i]), Integer.parseInt(splits[i + 1])));
+		if (string.length() != 0 && !string.endsWith("\n")) {
+			string += "\n";
 		}
-		this.body = body;
+		try {
+			BufferedReader reader = new BufferedReader(new StringReader(string));
+			String line1;
+			String line2;
+			if ((line1 = reader.readLine()) != null) {
+				this.score = Integer.parseInt(line1); // TODO: synchroniser
+			}
+			if ((line1 = reader.readLine()) != null) {
+				this.direction = Integer.parseInt(line1);
+			}
+			if ((line1 = reader.readLine()) != null) {
+				this.speed = Integer.parseInt(line1);
+			}
+			if ((line1 = reader.readLine()) != null) {
+				this.moveCountdown = Integer.parseInt(line1); // TODO: synchroniser
+			}
+			if ((line1 = reader.readLine()) != null) {
+				this.invincibilityCountdown = Integer.parseInt(line1); // TODO: synchroniser
+			}
+			if ((line1 = reader.readLine()) != null) {
+				this.reversed = Boolean.parseBoolean(line1);
+			}
+			List<Point> body = new ArrayList<Point>();
+			while ((line1 = reader.readLine()) != null && (line2 = reader.readLine()) != null) {
+				body.add(new Point(Integer.parseInt(line1), Integer.parseInt(line2))); // TODO: synchroniser
+			}
+			this.body.clear();
+			this.body.addAll(body);
+			reader.close();
+		} catch (Exception error) {}
 	}
 
 	public String toString() { // version réseau seulement
 		String string = "";
-		for (Point point: this.body) {
-			string += point.getX() + ";" + point.getY() + ";";
-		}
+		try {
+			BufferedWriter writer = new BufferedWriter(new StringWriter());
+			writer.write(Integer.toString(this.score) + "\n");
+			writer.write(Integer.toString(this.direction) + "\n");
+			writer.write(Integer.toString(this.speed) + "\n");
+			writer.write(Integer.toString(this.moveCountdown) + "\n");
+			writer.write(Integer.toString(this.invincibilityCountdown) + "\n");
+			writer.write(Boolean.toString(this.reversed) + "\n");
+			for (Point point: body) {
+				writer.write(point.getX() + "\n" + point.getY() + "\n");
+			}
+			string = writer.toString();
+			writer.close();
+		} catch (Exception error) {}
 		return string;
 	}
 
