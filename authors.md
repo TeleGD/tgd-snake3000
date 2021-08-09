@@ -7,5 +7,5 @@
 - Mathieu Milhem (@milhem1u)
 - Nathan Barloy (@nathanBarloy)
 - Stéphane Rimlinger (@srimlinger)
-- Tristan Le Godais (@TrisTOON)
+- Tristan Le Godais (@PolariTOON)
 - Victor Thevenon (@victorthevenon)

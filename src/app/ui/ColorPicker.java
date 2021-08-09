@@ -115,16 +115,22 @@ public class ColorPicker extends TGDComponent {
 	@Override
 	public void mousePressed(int arg0, int xM, int yM) {
 		super.mousePressed(arg0, xM, yM);
+		if (!visible) {
+			return;
+		}
 		int row = (int) ((yM - y) / ((height - paddingTop - paddingBottom) / 6));
 		if (row < 4 && row >= 0 && contains(xM, yM)) {
 			rowSelected = row;
+			changeColor(xM,yM);
 		}
-		changeColor(xM,yM);
 	}
 
 	@Override
 	public void mouseDragged(int arg0, int arg1, int xM, int yM) {
 		super.mouseDragged(arg0, arg1, xM, yM);
+		if (!visible) {
+			return;
+		}
 		changeColor(xM,yM);
 	}
 

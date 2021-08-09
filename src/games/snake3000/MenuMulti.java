@@ -33,9 +33,10 @@ public class MenuMulti extends BasicGameState {
 	private int debutNom;
 
 	private Button boutonStart,boutonNbJoueurs;
-	private String[] valTouchesDefaut = {"A","Z","O","P","W","X","B","N","1","2","9","0","4","5","6","7","F","G"};
-	private Color[] couleursDefaut =new Color[] {Color.white, Color.blue,Color.red,Color.green,Color.pink,Color.yellow,Color.cyan,Color.orange,Color.magenta};
-	private Color[] couleursJoueurs = couleursDefaut;
+	private int[] touchesDefaut = new int[]{Input.KEY_A,Input.KEY_Q,Input.KEY_L,Input.KEY_P,Input.KEY_F,Input.KEY_V,Input.KEY_B,Input.KEY_H};
+	private int[] touchesJoueurs = touchesDefaut.clone();
+	private Color[] couleursDefaut = new Color[]{Color.red,Color.orange,Color.green,Color.blue,Color.pink,Color.yellow,Color.cyan,Color.magenta};
+	private Color[] couleursJoueurs = couleursDefaut.clone();
 	private Button[] choixCouleur;
 	private ColorPicker picker;
 	private AppFont fontTitle = AppLoader.loadFont("/fonts/vt323.ttf", AppFont.BOLD, 25);
@@ -62,22 +63,44 @@ public class MenuMulti extends BasicGameState {
 		debutx=(longueurJeu-longueurMenu)/2+longueurMenu/15;
 		debuty=(container.getHeight()-hauteurMenu)/2+hauteurMenu/15;
 		int debutdroiteansx=(longueurJeu+longueurMenu)/2-longueurMenu/10-longueurMenu/8;
-		nJoueur=9;
+		nJoueur=4;
 		pas = container.getHeight()/20;
 		debutNom = longueurJeu/2 - longueurMenu/10;
 
-		nbrJoueurs = new TextField(container, debutdroiteansx, debuty+pas-5,longueurMenu/20, TGDComponent.AUTOMATIC);
-		nbrJoueurs.setPlaceHolder("");
+		nbrJoueurs = new TextField(container, debutdroiteansx, debuty+pas-5,longueurMenu/20, TGDComponent.AUTOMATIC) {
+
+			@Override
+			public void keyPressed(int key, char c) {
+				String oldText = super.getText();
+				super.keyPressed(key, c);
+				String newText = super.getText();
+				if (newText.length() == 0) {
+					super.setText("0");
+				} else if (!newText.equals(oldText) && Integer.parseInt(newText) > 4) {
+					super.setText(oldText);
+				}
+			}
+
+		};
 		nbrJoueurs.setHasFocus(true);
 		nbrJoueurs.setText(""+nJoueur);
+		nbrJoueurs.setBackgroundColor(new Color(0,0,0));
+		nbrJoueurs.setBackgroundColorEntered(new Color(255,255,255,100));
+		nbrJoueurs.setBackgroundColorPressed(new Color(255,0,0,0));
+		nbrJoueurs.setCursorEnabled(false);
+		nbrJoueurs.setTextColor(new Color(255,255,255));
+		nbrJoueurs.setBackgroundColorFocused(new Color(255,0,0,0));
 		nbrJoueurs.setOnlyFigures(true);
 		nbrJoueurs.setMaxNumberOfLetter(1);
+		nbrJoueurs.setOverflowMode(true);
 		nbrJoueurs.setEnterActionListener(new EnterActionListener() {
 
 			@Override
 			public void onEnterPressed() {
 				createJoueurs(container);
-			}});
+			}
+
+		});
 
 		boutonNbJoueurs = new Button("OK",container,nbrJoueurs.getX()+5+nbrJoueurs.getWidth(),debuty+pas-5,TGDComponent.AUTOMATIC, nbrJoueurs.getHeight());
 		boutonNbJoueurs.setBackgroundColor(new Color(255,255,255));
@@ -89,8 +112,9 @@ public class MenuMulti extends BasicGameState {
 			@Override
 			public void onClick(TGDComponent componenent) {
 				createJoueurs(container);
+			}
 
-			}});
+		});
 
 		boutonStart = new Button("START",container,longueurJeu/2-longueurMenu/6,(height+hauteurMenu)/2-8*hauteurMenu/75,longueurMenu/3,hauteurMenu/15);
 		boutonStart.setBackgroundColor(new Color(0,200,0));
@@ -101,7 +125,9 @@ public class MenuMulti extends BasicGameState {
 			public void onClick(TGDComponent componenent) {
 				startGame((World) game.getState(5));
 				game.enterState(5, new FadeOutTransition(), new FadeInTransition());
-			}});
+			}
+
+		});
 
 		picker = new ColorPicker(container,debutx,0,width/5,height/4);
 		picker.setVisible(false);
@@ -115,12 +141,12 @@ public class MenuMulti extends BasicGameState {
 			Snake[] snakes = new Snake[nJoueur];
 			Color[] colors = this.couleursJoueurs;
 			TextField[] names = this.fieldNomsJoueurs;
-			TextField[] keys = this.touchesClavier;
+			int[] keys = this.touchesJoueurs;
 			for (int i = 0; i < snakeCount; ++i) {
 				Color color = colors[i];
 				String name = names[i].getText();
-				int leftKey = this.getInputValue(keys[i * 2].getText());
-				int rightKey = this.getInputValue(keys[i * 2 + 1].getText());
+				int leftKey = keys[i * 2];
+				int rightKey = keys[i * 2 + 1];
 				int posX = (i * 2 + 1) * columns / (snakeCount * 2);
 				snakes[i] = new Snake(color, name, leftKey, rightKey, posX);
 			}
@@ -129,14 +155,10 @@ public class MenuMulti extends BasicGameState {
 	}
 
 	private void createJoueurs(GameContainer container) {
-		if (nbrJoueurs.getText().length() ==1) {
-			nJoueur = Integer.parseInt(nbrJoueurs.getText());
-		}
-
+		nJoueur = Integer.parseInt(nbrJoueurs.getText());
 		fieldNomsJoueurs=new TextField[nJoueur];
 		choixCouleur = new Button[nJoueur];
 		touchesClavier = new TextField[nJoueur*2];
-
 		for (int i = 0;i<nJoueur;i+=1) {
 			int yn = debuty + (i+2)*pas+10;
 			fieldNomsJoueurs[i] = new TextField(container , debutNom , yn , longueurMenu/3 , TGDComponent.AUTOMATIC );
@@ -145,7 +167,6 @@ public class MenuMulti extends BasicGameState {
 			fieldNomsJoueurs[i].setText("Joueur "+(i+1));
 			fieldNomsJoueurs[i].setPlaceHolder("Entrer le nom du joueur");
 			fieldNomsJoueurs[i].setMaxNumberOfLetter(20);
-
 			final int h=i;
 			choixCouleur[i] = new Button(container,longueurJeu/2+longueurMenu/4,yn,hauteurMenu/15,hauteurMenu/15);
 			choixCouleur[i].setBackgroundColor(couleursJoueurs[i]);
@@ -154,8 +175,13 @@ public class MenuMulti extends BasicGameState {
 
 				@Override
 				public void onClick(TGDComponent componenent) {
-
-					System.out.println("aller clic");
+					if (picker.getVisible()) {
+						couleursJoueurs[h]=couleursDefaut[h];
+						choixCouleur[h].setBackgroundColor(couleursDefaut[h]);
+						fieldNomsJoueurs[h].setTextColor(couleursDefaut[h]);
+						picker.setVisible(false);
+						return;
+					}
 					picker.setY(choixCouleur[h].getY());
 					picker.setColorSelected(couleursJoueurs[h]);
 					picker.setX(longueurJeu/2+longueurMenu/3);
@@ -164,44 +190,57 @@ public class MenuMulti extends BasicGameState {
 
 						@Override
 						public void onClick(TGDComponent componenent) {
-
 							couleursJoueurs[h]=picker.getColorSelected();
 							choixCouleur[h].setBackgroundColor(picker.getColorSelected());
 							fieldNomsJoueurs[h].setTextColor(picker.getColorSelected());
 							picker.setVisible(false);
-						}});
-				}});
+						}
 
-			touchesClavier[2*i] = new TextField(container,choixCouleur[i].getX()+choixCouleur[i].getWidth()+5,yn,hauteurMenu/15,hauteurMenu/15);
-			touchesClavier[2*i].setText(valTouchesDefaut[2*i]);
-			touchesClavier[2*i].setPlaceHolder("");
-			touchesClavier[2*i].setUpperCaseLock(true);
-			touchesClavier[2*i].setBackgroundColor(new Color(0,0,0));
-			touchesClavier[2*i].setBackgroundColorEntered(new Color(255,255,255,100));
-			touchesClavier[2*i].setBackgroundColorPressed(new Color(255,0,0,0));
-			touchesClavier[2*i].setCursorEnabled(false);
-			touchesClavier[2*i].setTextColor(Color.white);
-			touchesClavier[2*i].setMaxNumberOfLetter(1);
-			touchesClavier[2*i].setBackgroundColorFocused(new Color(255,0,0,0));
-			touchesClavier[2*i].setOverflowMode(true);
+					});
+				}
 
-			touchesClavier[2*i+1] = new TextField(container,touchesClavier[2*i].getX()+touchesClavier[2*i].getWidth()+5,yn,hauteurMenu/15,hauteurMenu/15);
-			touchesClavier[2*i+1].setText(valTouchesDefaut[2*i+1]);
-			touchesClavier[2*i+1].setPlaceHolder("");
-			touchesClavier[2*i+1].setBackgroundColorEntered(new Color(255,255,255,100));
-			touchesClavier[2*i+1].setBackgroundColorPressed(new Color(255,0,0,0));
-			touchesClavier[2*i+1].setTextColor(Color.white);
-			touchesClavier[2*i+1].setBackgroundColor(new Color(0,0,0));
-			touchesClavier[2*i+1].setMaxNumberOfLetter(1);
-			touchesClavier[2*i+1].setUpperCaseLock(true);
-			touchesClavier[2*i+1].setCursorEnabled(false);
-			touchesClavier[2*i+1].setBackgroundColorFocused(new Color(255,0,0,0));
-			touchesClavier[2*i+1].setOverflowMode(true);
+			});
+			for (int j = 0; j < 2; ++j) {
+				int index = 2 * i + j;
+				touchesClavier[index] = new TextField(container,j == 0 ? choixCouleur[i].getX()+choixCouleur[i].getWidth()+5 : touchesClavier[2*i].getX()+touchesClavier[2*i].getWidth()+5,yn,hauteurMenu/15,hauteurMenu/15) {
 
+					@Override
+					public void keyPressed(int key, char c) {
+						String oldText = super.getText();
+						super.keyPressed(key, c);
+						String newText = super.getText();
+						if (newText.length() == 0) {
+							key = touchesDefaut[index];
+							super.setText(Input.getKeyName(key));
+						} else if (!newText.equals(oldText)) {
+							if (c >= 97 && c < 123) {
+								touchesJoueurs[index] = key;
+								super.setText(Character.toString(c).toUpperCase());
+							} else {
+								super.setText(oldText);
+							}
+						}
+					}
+
+				};
+				touchesClavier[index].setText(Input.getKeyName(touchesDefaut[index]));
+				touchesClavier[index].setBackgroundColor(new Color(0,0,0));
+				touchesClavier[index].setBackgroundColorEntered(new Color(255,255,255,100));
+				touchesClavier[index].setBackgroundColorPressed(new Color(255,0,0,0));
+				touchesClavier[index].setCursorEnabled(false);
+				touchesClavier[index].setTextColor(new Color(255,255,255));
+				touchesClavier[index].setBackgroundColorFocused(new Color(255,0,0,0));
+				touchesClavier[index].setMaxNumberOfLetter(1);
+				touchesClavier[index].setOverflowMode(true);
+			}
 		}
 	}
 
 	public void update(GameContainer container, StateBasedGame game, int delta) {
+		Input input = container.getInput();
+		if (input.isKeyDown(Input.KEY_ESCAPE)) {
+			game.enterState(1, new FadeOutTransition(), new FadeInTransition());
+		}
 		nbrJoueurs.update(container, game, delta);
 		boutonStart.update(container, game, delta);
 		boutonNbJoueurs.update(container, game, delta);
@@ -241,48 +280,6 @@ public class MenuMulti extends BasicGameState {
 
 			boutonStart.render(container, game, g);
 			boutonNbJoueurs.render(container, game, g);
-	}
-
-	private int getInputValue(String s) {
-		s=s.toLowerCase();
-		if(s.equals("a"))return Input.KEY_A;
-		if(s.equals("b"))return Input.KEY_B;
-		if(s.equals("c"))return Input.KEY_C;
-		if(s.equals("d"))return Input.KEY_D;
-		if(s.equals("e"))return Input.KEY_E;
-		if(s.equals("f"))return Input.KEY_F;
-		if(s.equals("g"))return Input.KEY_G;
-		if(s.equals("h"))return Input.KEY_H;
-		if(s.equals("i"))return Input.KEY_I;
-		if(s.equals("j"))return Input.KEY_J;
-		if(s.equals("k"))return Input.KEY_K;
-		if(s.equals("l"))return Input.KEY_L;
-		if(s.equals("m"))return Input.KEY_M;
-		if(s.equals("n"))return Input.KEY_N;
-		if(s.equals("o"))return Input.KEY_O;
-		if(s.equals("p"))return Input.KEY_P;
-		if(s.equals("q"))return Input.KEY_Q;
-		if(s.equals("r"))return Input.KEY_R;
-		if(s.equals("s"))return Input.KEY_S;
-		if(s.equals("t"))return Input.KEY_T;
-		if(s.equals("u"))return Input.KEY_U;
-		if(s.equals("v"))return Input.KEY_V;
-		if(s.equals("w"))return Input.KEY_W;
-		if(s.equals("x"))return Input.KEY_X;
-		if(s.equals("y"))return Input.KEY_Y;
-		if(s.equals("z"))return Input.KEY_Z;
-		if(s.equals("0"))return Input.KEY_NUMPAD0;
-		if(s.equals("1"))return Input.KEY_NUMPAD1;
-		if(s.equals("2"))return Input.KEY_NUMPAD2;
-		if(s.equals("3"))return Input.KEY_NUMPAD3;
-		if(s.equals("4"))return Input.KEY_NUMPAD4;
-		if(s.equals("5"))return Input.KEY_NUMPAD5;
-		if(s.equals("6"))return Input.KEY_NUMPAD6;
-		if(s.equals("7"))return Input.KEY_NUMPAD7;
-		if(s.equals("8"))return Input.KEY_NUMPAD8;
-		if(s.equals("9"))return Input.KEY_NUMPAD9;
-
-		return 0;
 	}
 
 }

@@ -226,6 +226,9 @@ public class TGDComponent extends Rectangle implements MouseListener, KeyListene
 
 	@Override
 	public void mouseClicked(int type, int x, int y, int count) {
+		if (!visible) {
+			return;
+		}
 		if( listener!=null){
 			if (System.currentTimeMillis() - time > 300) {
 				hasFocus = false;
@@ -238,24 +241,36 @@ public class TGDComponent extends Rectangle implements MouseListener, KeyListene
 
 	@Override
 	public void mouseDragged(int arg0, int arg1, int arg2, int arg3) {
+		if (!visible) {
+			return;
+		}
 		if(System.currentTimeMillis()-time>500)hasFocus=false;
 		if(!hasFocus)return;
 	}
 
 	@Override
 	public void mouseMoved(int ox, int oy, int x, int y) {
+		if (!visible) {
+			return;
+		}
 		if(System.currentTimeMillis()-time>500)hasFocus=false;
 		mouseEntered=contains(x, y);
 	}
 
 	@Override
 	public void mousePressed(int arg0, int x, int y) {
+		if (!visible) {
+			return;
+		}
 		if(System.currentTimeMillis()-time>500)hasFocus=false;
 		mousePressed=contains(x, y);
 	}
 
 	@Override
 	public void mouseReleased(int arg0, int x, int y) {
+		if (!visible) {
+			return;
+		}
 		if(System.currentTimeMillis()-time>500)hasFocus=false;
 		mousePressed=false;
 
@@ -288,7 +303,9 @@ public class TGDComponent extends Rectangle implements MouseListener, KeyListene
 
 	@Override
 	public boolean contains(float x, float y){
-
+		if (!visible) {
+			return false;
+		}
 		if(x<this.x)return false;
 		if(x>this.x+getWidth()) return false;
 		if(y<this.y) return false;

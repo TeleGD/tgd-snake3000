@@ -60,7 +60,7 @@ public class AppLoader {
 		return path;
 	}
 
-	private static InputStream openStream(String filename) {
+	public static InputStream openStream(String filename) {
 		InputStream stream = null;
 		if (filename != null && filename.startsWith("/")) {
 			try {
@@ -75,7 +75,7 @@ public class AppLoader {
 		return stream;
 	}
 
-	private static void closeStream(InputStream stream) {
+	public static void closeStream(InputStream stream) {
 		try {
 			stream.close();
 		} catch (Exception error) {}
@@ -182,21 +182,21 @@ public class AppLoader {
 	}
 
 	public static String restoreData(String filename) {
-		String data = "";
 		if (filename == null || !filename.startsWith("/")) {
-			return data;
+			return null;
 		}
-		filename = AppLoader.home + filename.replaceAll("/+", "/").replace("/", File.separator);
+		filename = filename.replaceAll("/+", "/");
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(filename));
-			data = "";
+			BufferedReader reader = new BufferedReader(new FileReader(AppLoader.home + filename.replace("/", File.separator)));
+			String data = "";
 			String line;
 			while ((line = reader.readLine()) != null) {
 				data += line + "\n";
 			}
 			reader.close();
+			return data;
 		} catch (Exception error) {}
-		return data;
+		return null;
 	}
 
 	public static void saveData(String filename, String data) {
@@ -204,18 +204,21 @@ public class AppLoader {
 			return;
 		}
 		filename = filename.replaceAll("/+", "/");
-		new File(AppLoader.home + File.separator + filename.substring(1, filename.lastIndexOf("/")).replace("/", File.separator)).mkdirs();
-		filename = AppLoader.home + filename.replace("/", File.separator);
-		try {
-			BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
-			if (data == null) {
-				data = "";
-			} else if (data.length() != 0 && !data.endsWith("\n")) {
-				data += "\n";
+		if (data == null) {
+			while (filename.length() != 0 && new File(AppLoader.home + filename.replace("/", File.separator)).delete()) {
+				filename = filename.substring(0, filename.lastIndexOf("/"));
 			}
-			writer.write(data);
-			writer.close();
-		} catch (Exception error) {}
+		} else {
+			new File(AppLoader.home + filename.substring(0, filename.lastIndexOf("/")).replace("/", File.separator)).mkdirs();
+			try {
+				BufferedWriter writer = new BufferedWriter(new FileWriter(AppLoader.home + filename.replace("/", File.separator)));
+				if (data.length() != 0 && !data.endsWith("\n")) {
+					data += "\n";
+				}
+				writer.write(data);
+				writer.close();
+			} catch (Exception error) {}
+		}
 	}
 
 }
